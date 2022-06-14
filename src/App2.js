@@ -7,7 +7,7 @@ import "./App.css";
 import ResponsiveAppBar from "./AppHeader";
 import logo from "./logo.svg";
 
-function App(props) {
+function App2(props) {
     const { register, handleSubmit } = useForm();
     const [open, setOpen] = useState(false);
     const { state } = useLocation();
@@ -195,4 +195,4 @@ function App(props) {
     );
 }
 
-export default App;
+export default App2;

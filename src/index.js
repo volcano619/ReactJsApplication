@@ -5,6 +5,7 @@ import './index.css';
 import App from './App';
 import TestView from './TestView';
 import HomePage from "./HomePage";
+import NewEmployee from './NewEmployee';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -14,6 +15,7 @@ root.render(
       <Routes>
         <Route path="/" element={<TestView />}></Route>
         {/* <Route path="/" element={<App></App>}></Route> */}
+        <Route path='/addemployee' element={<NewEmployee></NewEmployee>} ></Route>
         <Route path="/homepage" element={<HomePage />} />
       </Routes>
     </BrowserRouter>

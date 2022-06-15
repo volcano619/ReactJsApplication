@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import ky from 'ky';
 import { Grid, TextField, Button, Paper, Dialog, DialogContent } from "@mui/material";
 import "./App.css";
-import ResponsiveAppBar from "./AppHeader";
+import ResponsiveAppBar from "./ResponsiveAppBar";
 import TestView from "./TestView";
 import logo from "./logo.svg";
 
@@ -107,8 +107,7 @@ export default function App() {
     return (
         <div className="App">
             <header className="App-header">
-                {/* <ResponsiveAppBar profileUsernameText="Venkatesh" /> */}
-                <TestView isHomePage='false' ></TestView>
+                <ResponsiveAppBar profileUsernameText="Venkatesh" />
                 <img className="App-logo" alt="" src={logo} height="300px" width="300px" />
                 <Grid paddingLeft="55px" container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
                     <Grid item xs={5.5} direction="row" justifyContent="center" alignItems="center" className="Login">

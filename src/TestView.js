@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Grid, TextField, Button, Paper, AppBar, Toolbar } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { Grid, TextField, Button, AppBar, Toolbar } from "@mui/material";
 import "./App.css";
+import logo from "./logo.svg";
 
 export default function TestView(props) {
     const pages = ['Add Employee'];
     const [isHomePage, setHomePageStatus] = useState(true)//props.isHomePage);
 
     const menuOptionClicked = (event) => {
-        
+        console.log(event.currentTarget.id);
     }
 
     const CheckHomePageAppBar = () => {

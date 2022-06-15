@@ -1,23 +1,24 @@
-import React, { Component, useEffect } from "react";
+import React, { Component, useEffect, useState } from "react";
 import "./App.css";
 import logo from "./logo.svg";
 import { Grid, TextField, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import ResponsiveAppBar from "./AppHeader";
 import { useNavigate, useLocation } from "react-router-dom";
 import ky from 'ky';
-import axios from 'axios';
 
-function HomePage() {
+export default function HomePage() {
   const location = useLocation();
-  const rows = [];
-  function createData(id, firstName, lastName, company, email) {
-    return { id, firstName, lastName, company, email };
+  const tempRows = [];
+  const [rows, setTableRows] = useState([]);
+  function createData(id, firstName, lastName, currentProjectName, emailAddress) {
+    return { id, firstName, lastName, currentProjectName, emailAddress };
   }
 
   function createRows(responseData) {
     for (const [i, employeeData] of responseData.entries()) {
-      rows.push(createData(employeeData.employeeId, employeeData.firstName, employeeData.lastName, employeeData.currentProjectName, employeeData.emailAddress, employeeData.isActive))
+      tempRows.push(createData(responseData[i].employeeId, responseData[i].firstName, responseData[i].lastName, responseData[i].currentProjectName, responseData[i].emailAddress))
     }
+    setTableRows(tempRows);
   }
 
   const getEmployeeData = async () => {
@@ -29,24 +30,51 @@ function HomePage() {
         'Access-Control-Allow-Methods': 'DELETE, POST, GET, OPTIONS',
       }
     }).json();
+    setTableRows(responseJson);
   }
 
   useEffect(() => {
+    alert("Hellow World")
     getEmployeeData();
-  });
+  }, []);
 
 
   return (
     <div className="App">
       <header className="App-header">
         <ResponsiveAppBar profileUsernameText={location.state.ProfileUserName} />
-        <img className="App-logo" alt="" src={logo} height="300px" width="300px" />
-        <Grid paddingLeft="55px" container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
-
-        </Grid>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table" >
+            <TableHead >
+              <TableRow>
+                <TableCell>Id</TableCell>
+                <TableCell align="right" >First Name</TableCell>
+                <TableCell align="right">Last Name</TableCell>
+                <TableCell align="right">Company</TableCell>
+                <TableCell align="right">Email</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow >
+                  <TableCell align="right" component="th" scope="row">
+                    {row.id}
+                  </TableCell>
+                  <TableCell align="right" >
+                    {row.firstName}
+                  </TableCell>
+                  <TableCell align="right" >
+                    {row.lastName}
+                  </TableCell>
+                  <TableCell align="right">{row.currentProjectName}</TableCell>
+                  <TableCell align="right">{row.emailAddress}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </header>
     </div >
   );
 }
 
-export default HomePage;

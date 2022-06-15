@@ -1,18 +1,16 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ky from 'ky';
 import { Grid, TextField, Button, Paper, Dialog, DialogContent } from "@mui/material";
 import "./App.css";
 import ResponsiveAppBar from "./AppHeader";
+import TestView from "./TestView";
 import logo from "./logo.svg";
 
-function App(props) {
+export default function App() {
     const { register, handleSubmit } = useForm();
     const [open, setOpen] = useState(false);
-    const { state } = useLocation();
-    const from = state ? state.from.pathname : '/';
-    console.log("PATHNAME " + from);
     let navigate = useNavigate();
     const validEmail = new RegExp(
         '^[a-zA-Z0-9._:$!%-]+@[a-zA-Z0-9.-]+.[a-zA-Z]$'
@@ -45,11 +43,11 @@ function App(props) {
             }).json();
 
             if (responseJson) {
-                
+
                 navigate('homepage', { state: { ProfileUserName: loginData.LoginUsername } });
             }
 
-            else{
+            else {
                 alert("Not able to login");
             }
 
@@ -109,7 +107,8 @@ function App(props) {
     return (
         <div className="App">
             <header className="App-header">
-                <ResponsiveAppBar profileUsernameText="Venkatesh" />
+                {/* <ResponsiveAppBar profileUsernameText="Venkatesh" /> */}
+                <TestView isHomePage='false' ></TestView>
                 <img className="App-logo" alt="" src={logo} height="300px" width="300px" />
                 <Grid paddingLeft="55px" container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
                     <Grid item xs={5.5} direction="row" justifyContent="center" alignItems="center" className="Login">
@@ -194,5 +193,3 @@ function App(props) {
         </div >
     );
 }
-
-export default App;

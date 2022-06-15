@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './index.css';
-//import App from './App';
-import App2 from './App2';
+import App from './App';
+import TestView from './TestView';
 import HomePage from "./HomePage";
 import reportWebVitals from './reportWebVitals';
 
@@ -12,7 +12,8 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App2 />}></Route>
+        <Route path="/" element={<TestView />}></Route>
+        {/* <Route path="/" element={<App></App>}></Route> */}
         <Route path="/homepage" element={<HomePage />} />
       </Routes>
     </BrowserRouter>

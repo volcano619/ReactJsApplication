@@ -1,25 +1,14 @@
-import React, { Component, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
-import logo from "./logo.svg";
-import { Grid, TextField, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
-import ResponsiveAppBar from "./ResponsiveAppBar";
+import { TextField, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import CustomAppBar from "./CustomAppBar";
 import { useNavigate, useLocation } from "react-router-dom";
 import ky from 'ky';
 
 export default function HomePage() {
   const location = useLocation();
-  const tempRows = [];
+  const [tempRows, setTempRows] = useState([]);
   const [rows, setTableRows] = useState([]);
-  function createData(id, firstName, lastName, currentProjectName, emailAddress) {
-    return { id, firstName, lastName, currentProjectName, emailAddress };
-  }
-
-  function createRows(responseData) {
-    for (const [i, employeeData] of responseData.entries()) {
-      tempRows.push(createData(responseData[i].employeeId, responseData[i].firstName, responseData[i].lastName, responseData[i].currentProjectName, responseData[i].emailAddress))
-    }
-    setTableRows(tempRows);
-  }
 
   const getEmployeeData = async () => {
     const responseJson = await ky.get('https://localhost:7168/Employee/GetEmployeeList', {
@@ -30,11 +19,30 @@ export default function HomePage() {
         'Access-Control-Allow-Methods': 'DELETE, POST, GET, OPTIONS',
       }
     }).json();
+    setTempRows(responseJson);
     setTableRows(responseJson);
   }
 
+  const arraySearch = (array, keyword) => {
+    const searchTerm = keyword.toLowerCase()
+    return array.filter(value => {
+      return value.firstName.toLowerCase().match(new RegExp(searchTerm, 'g')) ||
+        value.lastName.toLowerCase().match(new RegExp(searchTerm, 'g'))
+    })
+  }
+
+  const searchTextValueChanged = (event) => {
+    const searchTextChangeValue = event.target.value
+    if (searchTextChangeValue.length >= 2) {
+      const searchItems = arraySearch(rows, searchTextChangeValue)
+      setTableRows(searchItems);
+    }
+    else {
+      setTableRows(tempRows);
+    }
+  }
+
   useEffect(() => {
-    alert("Hellow World")
     getEmployeeData();
   }, []);
 
@@ -42,7 +50,10 @@ export default function HomePage() {
   return (
     <div className="App">
       <header className="App-header">
-        <ResponsiveAppBar profileUsernameText={location.state.ProfileUserName} />
+        {/* <ResponsiveAppBar profileUsernameText={location.state.ProfileUserName} /> */}
+        <CustomAppBar isHomePage='true' profileUsername={location.state.ProfileUserName} ></CustomAppBar>
+        <TextField onChange={searchTextValueChanged} id="outlined-size-small"
+          size="small" label="Search field" type="search" />
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table" >
             <TableHead >

@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import ky from 'ky';
-import { Grid, TextField, Button, Paper, Dialog, DialogContent } from "@mui/material";
+import { Grid, TextField, Button, Paper } from "@mui/material";
 import "./App.css";
-import ResponsiveAppBar from "./ResponsiveAppBar";
-import TestView from "./TestView";
 import logo from "./logo.svg";
+import CustomAppBar from "./CustomAppBar";
 
 export default function App() {
     const { register, handleSubmit } = useForm();
@@ -107,7 +106,8 @@ export default function App() {
     return (
         <div className="App">
             <header className="App-header">
-                <ResponsiveAppBar profileUsernameText="Venkatesh" />
+            <CustomAppBar isHomePage='true' profileUsername="Venkatesh" ></CustomAppBar>
+                {/* <ResponsiveAppBar profileUsernameText="Venkatesh" /> */}
                 <img className="App-logo" alt="" src={logo} height="300px" width="300px" />
                 <Grid paddingLeft="55px" container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
                     <Grid item xs={5.5} direction="row" justifyContent="center" alignItems="center" className="Login">
@@ -122,7 +122,6 @@ export default function App() {
                                 <TextField
                                     {...register("LoginUsername")}
                                     label="Enter Username"
-                                    id="outlined-size-small"
                                     size="small"
                                     required
                                 />
@@ -131,7 +130,6 @@ export default function App() {
                                 <TextField
                                     {...register("LoginPassword")}
                                     label="Enter Password"
-                                    id="outlined-size-small"
                                     size="small"
                                     required
                                     type="password"
@@ -148,7 +146,7 @@ export default function App() {
                             </div>
                         </Paper>
                     </Grid>
-                    <label padding="20px" className="App-font-small" item xs={0.5} height="5px" width="5px" for="RegisterGrid" >OR</label>
+                    <label padding="20px" className="App-font-small" item xs={0.5} height="5px" width="5px" >OR</label>
                     <Grid id="RegisterGrid" item xs={5.5} direction="row" justifyContent="center" alignItems="center">
                         <Paper elevation={3} sx={{
                             backgroundColor: 'white',
@@ -160,7 +158,6 @@ export default function App() {
                             <div style={{ marginTop: '50px' }} className="Usernamediv">
                                 <TextField
                                     label="Enter Username"
-                                    id="outlined-size-small"
                                     size="small"
                                     required
                                     {...register("RegLoginUsername")}
@@ -169,7 +166,6 @@ export default function App() {
                             <div style={{ marginTop: '20px' }} className="Passwordiv">
                                 <TextField
                                     label="Enter Password"
-                                    id="outlined-size-small"
                                     size="small"
                                     required
                                     type="password"

@@ -13,10 +13,10 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<TestView />}></Route>
-        {/* <Route path="/" element={<App></App>}></Route> */}
+        {/* <Route path="/" element={<TestView></TestView>}></Route> */}
+        <Route path="/" element={<App></App>}></Route>
+        <Route path='/homepage' element={<HomePage></HomePage>} />
         <Route path='/addemployee' element={<NewEmployee></NewEmployee>} ></Route>
-        <Route path="/homepage" element={<HomePage />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

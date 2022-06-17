@@ -1,19 +1,16 @@
-import React, { Component, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
-import logo from "./logo.svg";
-import { Grid, TextField, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
-import ResponsiveAppBar from "./ResponsiveAppBar";
+import { TextField, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton } from "@mui/material";
+import { DeleteForever, Edit } from '@mui/icons-material';
 import CustomAppBar from "./CustomAppBar";
 import { useNavigate, useLocation } from "react-router-dom";
 import ky from 'ky';
 
 export default function TestView() {
     const location = useLocation();
+    const navigate = useNavigate();
     const [tempRows, setTempRows] = useState([]);
     const [rows, setTableRows] = useState([]);
-    function createData(id, firstName, lastName, currentProjectName, emailAddress) {
-        return { id, firstName, lastName, currentProjectName, emailAddress };
-    }
 
     const getEmployeeData = async () => {
         const responseJson = await ky.get('https://localhost:7168/Employee/GetEmployeeList', {
@@ -31,7 +28,6 @@ export default function TestView() {
     useEffect(() => {
         getEmployeeData();
     }, []);
-
 
     const arraySearch = (array, keyword) => {
         const searchTerm = keyword.toLowerCase()
@@ -52,31 +48,56 @@ export default function TestView() {
         }
     }
 
+    const editClickedEmployee = (event) => {
+        const filteredEmployeeDetail = fetchClickedEmployeeDetail(event.currentTarget.id)
+        navigate('../addemployee', { state: { editEmployeeData: filteredEmployeeDetail } })
+    }
+
+    const deleteClickedEmployee = async (event) => {
+        const responseJson = await ky.delete('https://localhost:7168/Employee/DeleteEmployee?id=' + event.currentTarget.id, {
+            headers: {
+                'content-type': 'application/json',
+                'Access-Control-Allow-Origin': 'http://localhost:3000',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Methods': 'DELETE, POST, GET, OPTIONS',
+            }
+        }).json();
+        if (responseJson) {
+            getEmployeeData();
+        }
+        else {
+            alert("Something Went wrong, please try again")
+        }
+    }
+
+    const fetchClickedEmployeeDetail = (clickedEmployeeId) => {
+        const filteredEmployeeDetail = rows.filter(
+            (item) => item.employeeId === parseInt(clickedEmployeeId)
+        );
+        return filteredEmployeeDetail;
+    }
 
     return (
         <div className="App">
             <header className="App-header">
-                <CustomAppBar sx={{ minWidth: 650 }} isHomePage='true' profileUsername="Hello World!"></CustomAppBar>
+                <CustomAppBar isHomePage='true' profileUsername="Testing" ></CustomAppBar>
                 <TextField onChange={searchTextValueChanged} id="outlined-size-small"
-                                    size="small" label="Search field" type="search" />
+                    size="small" label="Search field" type="search" />
                 <TableContainer component={Paper}>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table" >
-                        <TableHead >
+                        <TableHead>
                             <TableRow>
-                                <TableCell>Id</TableCell>
                                 <TableCell align="right" >First Name</TableCell>
                                 <TableCell align="right">Last Name</TableCell>
                                 <TableCell align="right">Company</TableCell>
                                 <TableCell align="right">Email</TableCell>
+                                <TableCell align="right" >Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {rows.map((row) => (
+                            {rows.map((row, i) => (
                                 <TableRow >
                                     <TableCell align="right" component="th" scope="row">
-                                        {row.id}
-                                    </TableCell>
-                                    <TableCell align="right" >
                                         {row.firstName}
                                     </TableCell>
                                     <TableCell align="right" >
@@ -84,6 +105,16 @@ export default function TestView() {
                                     </TableCell>
                                     <TableCell align="right">{row.currentProjectName}</TableCell>
                                     <TableCell align="right">{row.emailAddress}</TableCell>
+                                    <TableCell align="right">
+                                        <div>
+                                            <IconButton id={row.employeeId} onClick={editClickedEmployee} >
+                                                <Edit />
+                                            </IconButton>
+                                            <IconButton id={row.employeeId} onClick={deleteClickedEmployee}>
+                                                <DeleteForever />
+                                            </IconButton>
+                                        </div>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

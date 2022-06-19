@@ -78,13 +78,13 @@ export default function HomePage() {
   }
 
   return (
-    <div className="App">
+    <div>
       <header className="App-header">
-        <CustomAppBar isHomePage='true' profileUsername={location.state.ProfileUserName} ></CustomAppBar>
-        <TextField onChange={searchTextValueChanged} id="outlined-size-small"
+        <CustomAppBar isHomePage='true' profileUsername={location.state.ProfileUserName ? location.state.ProfileUserName : "Admin"} ></CustomAppBar>
+        <TextField sx={{ alignSelf: "end", margin: "10px" }} onChange={searchTextValueChanged}
           size="small" label="Search field" type="search" />
         <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table" >
+          <Table aria-label="simple table" >
             <TableHead>
               <TableRow>
                 <TableCell align="right" >First Name</TableCell>

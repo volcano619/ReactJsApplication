@@ -7,7 +7,7 @@ export default function CustomAppBar(props) {
     const pages = ['Add Employee'];
     const settings = ['Logout'];
     const navigate = useNavigate();
-    const [isHomePage, setHomePageStatus] = useState(true)//props.isHomePage);
+    const [IsHomePage, setIsHomePageStatus] = useState(props.isHomePage);
     const [profileUsername, setProfileUsername] = useState(props.profileUsername);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -15,27 +15,38 @@ export default function CustomAppBar(props) {
         setAnchorElUser(event.currentTarget);
     };
 
-    const handleCloseUserMenu = () => {
-        setAnchorElUser(null);
+    const handleCloseUserMenu = (event) => {
+        if(event.currentTarget.id === 'Logout'){
+            navigate('../')
+            setAnchorElUser(null);
+        }
+        else{
+            setAnchorElUser(null);
+        }
     };
 
     const menuOptionClicked = (event) => {
-        if (event.currentTarget.id === 'Add Employee') 
-        {
+        if (event.currentTarget.id === 'Add Employee') {
             navigate('../addemployee')
+        }
+        else if (event.currentTarget.id === 'homepage'){
+            navigate('../homepage', { state: { ProfileUserName: "Admin" } })
         }
     }
 
     const CheckHomePageAppBar = () => {
-        if (isHomePage) {
+        console.log(IsHomePage)
+        if (IsHomePage === 'true') {
             return (
-                <AppBar sx={{ bgcolor: 'black', flex: 1 }}>
-                    <Toolbar>
-                        <Button sx={{ bgcolor: 'black', color: 'white', padding: '10px', marginLeft: '30px', '&:hover': { bgcolor: 'black' } }} >Home</Button>
-                        {pages.map((menuOption) => (
-                            <Button id={menuOption} onClick={menuOptionClicked} sx={{ bgcolor: 'green', color: 'white', padding: '10px', marginLeft: '30px', '&:hover': { bgcolor: 'lightgreen' } }} >{menuOption}</Button>
-                        ))}
-                        <Box sx={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }}>
+                <AppBar className="App-HeaderBar">
+                    <Toolbar className="App-toolbar-div" >
+                        <Toolbar className="App-Toolbar" >
+                            <Button id="homepage" onClick={menuOptionClicked} sx={{ bgcolor: 'black', color: 'white', padding: '10px', marginLeft: '30px', '&:hover': { bgcolor: 'black' } }} >Home</Button>
+                            {pages.map((menuOption) => (
+                                <Button id={menuOption} onClick={menuOptionClicked} sx={{ bgcolor: 'green', color: 'white', padding: '10px', marginLeft: '30px', '&:hover': { bgcolor: 'lightgreen' } }} >{menuOption}</Button>
+                            ))}
+                        </Toolbar>
+                        <Box>
                             <Tooltip title="Open settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                                     <Avatar sx={{ bgcolor: 'green' }} alt={profileUsername} src="/src/user.png" />
@@ -58,7 +69,7 @@ export default function CustomAppBar(props) {
                                 onClose={handleCloseUserMenu}
                             >
                                 {settings.map((setting) => (
-                                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                                    <MenuItem key={setting} id={setting} onClick={handleCloseUserMenu}>
                                         <Typography textAlign="center">{setting}</Typography>
                                     </MenuItem>
                                 ))}
@@ -68,9 +79,11 @@ export default function CustomAppBar(props) {
                 </AppBar>
             );
         }
-        else {
+        else 
+        {
+            console.log("Hi")
             return (
-                <AppBar sx={{ bgcolor: 'black' }}>
+                <AppBar className="App-HeaderBar">
                     <Toolbar>
                         <label sx={{ color: 'white' }} >Welcome to Employee Portal</label>
                     </Toolbar>

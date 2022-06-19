@@ -106,17 +106,11 @@ export default function App() {
     return (
         <div className="App">
             <header className="App-header">
-            <CustomAppBar isHomePage='true' profileUsername="Venkatesh" ></CustomAppBar>
-                {/* <ResponsiveAppBar profileUsernameText="Venkatesh" /> */}
+                <CustomAppBar isHomePage='false' ></CustomAppBar>
                 <img className="App-logo" alt="" src={logo} height="300px" width="300px" />
                 <Grid paddingLeft="55px" container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
                     <Grid item xs={5.5} direction="row" justifyContent="center" alignItems="center" className="Login">
-                        <Paper elevation={3} sx={{
-                            backgroundColor: 'white',
-                            height: '300px',
-                            marginTop: '20px',
-                            padding: '25px',
-                        }}>
+                        <Paper elevation={3} className="Paper-styles">
                             <label className="App-font-bold">Login</label>
                             <div style={{ marginTop: '50px' }} className="Usernamediv">
                                 <TextField
@@ -148,12 +142,7 @@ export default function App() {
                     </Grid>
                     <label padding="20px" className="App-font-small" item xs={0.5} height="5px" width="5px" >OR</label>
                     <Grid id="RegisterGrid" item xs={5.5} direction="row" justifyContent="center" alignItems="center">
-                        <Paper elevation={3} sx={{
-                            backgroundColor: 'white',
-                            height: '300px',
-                            marginTop: '20px',
-                            padding: '25px',
-                        }}>
+                        <Paper elevation={3} className="Paper-styles">
                             <label className="App-font-bold">Sign Up</label>
                             <div style={{ marginTop: '50px' }} className="Usernamediv">
                                 <TextField

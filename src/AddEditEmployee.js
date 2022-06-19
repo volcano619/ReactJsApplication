@@ -55,7 +55,7 @@ export default function AddEditEmployee() {
             }).json();
 
             if (responseJson) {
-                navigate('../homepage', { state: { ProfileUserName: "Testing" } })
+                navigate('../homepage', { state: { ProfileUserName: "Admin" } })
             }
             else {
                 alert("Something Went Wrong, please try again")
@@ -86,7 +86,7 @@ export default function AddEditEmployee() {
             }).json();
 
             if (responseJson) {
-                navigate('../homepage', { state: { ProfileUserName: "Testing" } })
+                navigate('../homepage', { state: { ProfileUserName: "Admin" } })
             }
             else {
                 alert("Something Went Wrong, please try again")
@@ -95,13 +95,13 @@ export default function AddEditEmployee() {
     }
 
     const cancelEmployeeCreation = (event) => {
-        navigate('../homepage', { state: { ProfileUserName: "Testing" } });
+        navigate('../homepage', { state: { ProfileUserName: "Admin" } });
     }
 
     const checkAddEditCondition = () => {
         if (location.state == null) {
             return (
-                <div className="App" >
+                <div sx={{ display:"flex", flexDirection:"column", alignItems:"center",  }} >
                     <Paper elevation={3} sx={{
                         backgroundColor: 'white',
                         marginTop: '20px',
@@ -174,7 +174,7 @@ export default function AddEditEmployee() {
         }
         else {
             return (
-                <div className="App" >
+                <div sx={{ display:"flex", flexDirection:"column", alignItems:"center",  }} >
                     <Paper elevation={3} sx={{
                         backgroundColor: 'white',
                         marginTop: '20px',

@@ -1,6 +1,39 @@
 .App {
-  text-align: end;
-  display: "flex";
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  display: flex;
+}
+
+.App-HeaderBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  color: black;
+  background-color: black;
+}
+
+.App-Toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.App-toolbar-div {
+  display: flex;
+  flex-direction: row;
+  background-color: black;
+  justify-content: space-between;
+}
+
+.Paper-styles {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: white;
+  height: 300px;
+  margin-top: 20px;
+  padding: 25px;
 }
 
 .App-logo {
@@ -18,7 +51,7 @@
   background-color: white;
   display: flex;
   font-size: 15px;
-  padding-left : 200px;
+  padding-left: 200px;
   color: black;
 }
 
@@ -61,6 +94,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

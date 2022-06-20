@@ -42,8 +42,8 @@ export default function App() {
             }).json();
 
             if (responseJson) {
-
-                navigate('homepage', { state: { ProfileUserName: loginData.LoginUsername } });
+                sessionStorage.setItem("ProfileUserName", loginData.LoginUsername)
+                navigate('homepage');
             }
 
             else {

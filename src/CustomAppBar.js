@@ -16,11 +16,12 @@ export default function CustomAppBar(props) {
     };
 
     const handleCloseUserMenu = (event) => {
-        if(event.currentTarget.id === 'Logout'){
+        if (event.currentTarget.id === 'Logout') {
+            sessionStorage.removeItem('ProfileUserName');
             navigate('../')
             setAnchorElUser(null);
         }
-        else{
+        else {
             setAnchorElUser(null);
         }
     };
@@ -29,8 +30,8 @@ export default function CustomAppBar(props) {
         if (event.currentTarget.id === 'Add Employee') {
             navigate('../addemployee')
         }
-        else if (event.currentTarget.id === 'homepage'){
-            navigate('../homepage', { state: { ProfileUserName: "Admin" } })
+        else if (event.currentTarget.id === 'homepage') {
+            navigate('../homepage')
         }
     }
 
@@ -78,8 +79,7 @@ export default function CustomAppBar(props) {
                 </AppBar>
             );
         }
-        else 
-        {
+        else {
             return (
                 <AppBar className="App-HeaderBar">
                     <Toolbar>

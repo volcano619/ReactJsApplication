@@ -27,7 +27,7 @@ export default function AddEditEmployee() {
             setUpdatedEmailAddress(location.state.editEmployeeData[0].emailAddress);
             setUpdatedCompanyName(location.state.editEmployeeData[0].currentProjectName);
         }
-    },location.state);
+    }, location.state);
 
     const validEmail = new RegExp(
         '^[a-zA-Z0-9._:$!%-]+@[a-zA-Z0-9.-]+.[a-zA-Z]$'
@@ -55,7 +55,7 @@ export default function AddEditEmployee() {
             }).json();
 
             if (responseJson) {
-                navigate('../homepage', { state: { ProfileUserName: "Admin" } })
+                navigate('../homepage')
             }
             else {
                 alert("Something Went Wrong, please try again")
@@ -86,7 +86,7 @@ export default function AddEditEmployee() {
             }).json();
 
             if (responseJson) {
-                navigate('../homepage', { state: { ProfileUserName: "Admin" } })
+                navigate('../homepage')
             }
             else {
                 alert("Something Went Wrong, please try again")
@@ -95,13 +95,13 @@ export default function AddEditEmployee() {
     }
 
     const cancelEmployeeCreation = (event) => {
-        navigate('../homepage', { state: { ProfileUserName: "Admin" } });
+        navigate('../homepage')
     }
 
     const checkAddEditCondition = () => {
         if (location.state == null) {
             return (
-                <div sx={{ display:"flex", flexDirection:"column", alignItems:"center",  }} >
+                <div sx={{ display: "flex", flexDirection: "column", alignItems: "center", }} >
                     <Paper elevation={3} sx={{
                         backgroundColor: 'white',
                         marginTop: '20px',
@@ -174,7 +174,7 @@ export default function AddEditEmployee() {
         }
         else {
             return (
-                <div sx={{ display:"flex", flexDirection:"column", alignItems:"center",  }} >
+                <div sx={{ display: "flex", flexDirection: "column", alignItems: "center", }} >
                     <Paper elevation={3} sx={{
                         backgroundColor: 'white',
                         marginTop: '20px',

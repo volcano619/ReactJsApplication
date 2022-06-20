@@ -3,11 +3,10 @@ import "./App.css";
 import { TextField, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton } from "@mui/material";
 import { DeleteForever, Edit } from '@mui/icons-material';
 import CustomAppBar from "./CustomAppBar";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ky from 'ky';
 
 export default function HomePage() {
-  const location = useLocation();
   const navigate = useNavigate();
   const [tempRows, setTempRows] = useState([]);
   const [rows, setTableRows] = useState([]);
@@ -80,7 +79,7 @@ export default function HomePage() {
   return (
     <div>
       <header className="App-header">
-        <CustomAppBar isHomePage='true' profileUsername={location.state.ProfileUserName ? location.state.ProfileUserName : "Admin"} ></CustomAppBar>
+        <CustomAppBar isHomePage='true' profileUsername={sessionStorage.getItem("ProfileUserName") ? sessionStorage.getItem("ProfileUserName") : "Admin"} ></CustomAppBar>
         <TextField sx={{ alignSelf: "end", margin: "10px" }} onChange={searchTextValueChanged}
           size="small" label="Search field" type="search" />
         <TableContainer component={Paper}>

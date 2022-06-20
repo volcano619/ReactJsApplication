@@ -35,7 +35,6 @@ export default function CustomAppBar(props) {
     }
 
     const CheckHomePageAppBar = () => {
-        console.log(IsHomePage)
         if (IsHomePage === 'true') {
             return (
                 <AppBar className="App-HeaderBar">
@@ -81,7 +80,6 @@ export default function CustomAppBar(props) {
         }
         else 
         {
-            console.log("Hi")
             return (
                 <AppBar className="App-HeaderBar">
                     <Toolbar>

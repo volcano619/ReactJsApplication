@@ -6,27 +6,21 @@ import { Grid, TextField, Button, Paper } from "@mui/material";
 import "./App.css";
 import logo from "./logo.svg";
 import CustomAppBar from "./CustomAppBar";
+import * as yup from "yup";
 
 export default function App() {
     const { register, handleSubmit } = useForm();
     const [open, setOpen] = useState(false);
     let navigate = useNavigate();
-    const validEmail = new RegExp(
-        '^[a-zA-Z0-9._:$!%-]+@[a-zA-Z0-9.-]+.[a-zA-Z]$'
-    );
-    const validPassword = new RegExp('^(?=.*?[A-Za-z])(?=.*?[0-9]).{6,}$');
+
+    const loginSchema = yup.object().shape({
+        LoginUsername: yup.string().email().required(),
+        LoginPassword: yup.string().min(8).required(),
+    })
 
     const validateLogin = async (loginData) => {
-        if (loginData.LoginUsername == null || loginData.LoginPassword == null) {
-            alert("Please enter your credentials");
-        }
-        else if (loginData.LoginUsername != null && !validEmail.test(loginData.LoginUsername)) {
-            alert("Please check your username");
-        }
-        else if (loginData.LoginPassword != null && !validPassword.test(loginData.LoginPassword)) {
-            alert("Please check your password");
-        }
-        else {
+        const isLoginDataValid = await loginSchema.isValid(loginData, { abortEarly: false });
+        if (isLoginDataValid) {
             const responseJson = await ky.post('https://localhost:7168/Employee/DoLogin', {
                 headers: {
                     'content-type': 'application/json',
@@ -58,19 +52,14 @@ export default function App() {
             //     </Dialog>
             // );
         }
+        else {
+            alert("Please Check your credentials");
+        }
     };
 
     const validateUserRegistration = async (registrationData) => {
-        if (registrationData.RegLoginUsername == null || registrationData.RegLoginPassword == null) {
-            alert("Please enter your credentials");
-        }
-        else if (registrationData.RegLoginUsername != null && !validEmail.test(registrationData.RegLoginUsername)) {
-            alert("Please check your username");
-        }
-        else if (registrationData.RegLoginPassword != null && !validPassword.test(registrationData.RegLoginPassword)) {
-            alert("Please check your password");
-        }
-        else {
+        const isRegistrationDataValid = await loginSchema.isValid(registrationData, { abortEarly: false });
+        if (isRegistrationDataValid) {
             const responseJson = await ky.post('https://localhost:7168/Employee/RegisterAdminUser', {
                 headers: {
                     'content-type': 'application/json',
@@ -99,6 +88,10 @@ export default function App() {
             //         </DialogContent>
             //     </Dialog>
             // );
+        }
+
+        else {
+            alert("Registration Failed");
         }
     };
 

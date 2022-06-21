@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { TextField, Button, Paper } from "@mui/material";
 import "./App.css";
 import ky from 'ky';
+import * as yup from "yup";
 
 export default function AddEditEmployee() {
     const { register, handleSubmit, setValue } = useForm();
@@ -24,11 +25,16 @@ export default function AddEditEmployee() {
         '^[a-zA-Z0-9._:$!%-]+@[a-zA-Z0-9.-]+.[a-zA-Z]$'
     );
 
+    const validEmployeeSchema = yup.object().shape({
+        FirstName: yup.string().required(),
+        LastName: yup.string().required(),
+        CurrentProjectName: yup.string().required(),
+        EmailAddress: yup.string().email().required(),
+    })
+
     const validateandAddEmployeeDataOperation = async (addEmployeeRequestData) => {
-        if (addEmployeeRequestData.FirstName == null || addEmployeeRequestData.LastName == null || addEmployeeRequestData.CurrentProjectName == null || addEmployeeRequestData.EmailAddress == null || !validEmail.test(addEmployeeRequestData.EmailAddress)) {
-            alert("Please check the information entered");
-        }
-        else {
+        const isValidEmployee = await validEmployeeSchema.isValid(addEmployeeRequestData)
+        if (isValidEmployee) {
             const responseJson = await ky.post('https://localhost:7168/Employee/AddEmployee', {
                 headers: {
                     'content-type': 'application/json',
@@ -52,13 +58,14 @@ export default function AddEditEmployee() {
                 alert("Something Went Wrong, please try again")
             }
         }
+        else {
+            alert("Please check the information entered")
+        }
     }
 
     const validateandUpdateEmployeeDataOperation = async (updateEmployeeRequestData) => {
-        if (updateEmployeeRequestData.FirstName == null || updateEmployeeRequestData.LastName == null || updateEmployeeRequestData.CurrentProjectName == null || updateEmployeeRequestData.EmailAddress == null || !validEmail.test(updateEmployeeRequestData.EmailAddress)) {
-            alert("Please check the information entered");
-        }
-        else {
+        const isValidEmployee = await validEmployeeSchema.isValid(updateEmployeeRequestData)
+        if (isValidEmployee) {
             const responseJson = await ky.post('https://localhost:7168/Employee/UpdateEmployee', {
                 headers: {
                     'content-type': 'application/json',
@@ -82,6 +89,9 @@ export default function AddEditEmployee() {
             else {
                 alert("Something Went Wrong, please try again")
             }
+        }
+        else {
+            alert("Please check the information entered")
         }
     }
 

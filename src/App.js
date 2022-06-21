@@ -16,7 +16,6 @@ export default function App() {
     );
     const validPassword = new RegExp('^(?=.*?[A-Za-z])(?=.*?[0-9]).{6,}$');
 
-
     const validateLogin = async (loginData) => {
         if (loginData.LoginUsername == null || loginData.LoginPassword == null) {
             alert("Please enter your credentials");

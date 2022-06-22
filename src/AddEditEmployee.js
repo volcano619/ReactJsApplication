@@ -21,10 +21,6 @@ export default function AddEditEmployee() {
         }
     }, location.state);
 
-    const validEmail = new RegExp(
-        '^[a-zA-Z0-9._:$!%-]+@[a-zA-Z0-9.-]+.[a-zA-Z]$'
-    );
-
     const validEmployeeSchema = yup.object().shape({
         FirstName: yup.string().required(),
         LastName: yup.string().required(),

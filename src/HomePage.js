@@ -68,7 +68,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 export default function HomePage(props) {
   const pages = ['Add Employee'];
   const settings = ['Logout'];
-  const [profileUsername, setProfileUsername] = useState(props.profileUsername);
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [buttonText, setButtonText] = useState("Add Employee");

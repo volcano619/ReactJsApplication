@@ -14,11 +14,13 @@ import { TextField, Button, Paper, TableBody, Table, TableHead, TableContainer, 
 import { DeleteForever, Edit } from '@mui/icons-material';
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import ky from 'ky';
+import { useSelector, useDispatch } from "react-redux";
 import * as yup from "yup";
+import { fetchEmployeesThunk, addEmployeeThunk, updateEmployeeThunk, deleteEmployeeThunk, updateEmployeeSearch, doLogout } from "./EmployeeListSlice";
 
 
 const drawerWidth = 480;
+
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
@@ -65,18 +67,22 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-export default function HomePage(props) {
+
+export default function HomePage() {
+
   const pages = ['Add Employee'];
   const settings = ['Logout'];
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [buttonText, setButtonText] = useState("Add Employee");
   const navigate = useNavigate();
-  const [tempRows, setTempRows] = useState([]);
   const [filteredEmployeeDetailId, setFilteredEmployeeDetailId] = useState();
-  const [rows, setTableRows] = useState([]);
+  const dispatch = useDispatch();
+  const rows = useSelector((state) => state.employeelist.value);
+  const UserLoggedIn = useSelector((state) => state.employeelist.userLoggedIn);
+  const ProfileUserName = useSelector((state) => state.employeelist.profileUserName);
   const { register, handleSubmit, setValue } = useForm();
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
 
   const validEmployeeSchema = yup.object().shape({
     FirstName: yup.string().required(),
@@ -91,9 +97,11 @@ export default function HomePage(props) {
 
   const handleCloseUserMenu = (event) => {
     if (event.currentTarget.id === 'Logout') {
-      sessionStorage.removeItem('ProfileUserName');
-      navigate('../')
+      dispatch(doLogout());
       setAnchorElUser(null);
+      if(!UserLoggedIn){
+        navigate('../')
+      }
     }
     else {
       setAnchorElUser(null);
@@ -118,40 +126,12 @@ export default function HomePage(props) {
     setOpen(false);
   };
 
-  const getEmployeeData = async () => {
-    const responseJson = await ky.get('https://localhost:7168/Employee/GetEmployeeList', {
-      headers: {
-        'content-type': 'application/json',
-        'Access-Control-Allow-Origin': 'http://localhost:3000',
-        'Access-Control-Allow-Credentials': 'true',
-        'Access-Control-Allow-Methods': 'DELETE, POST, GET, OPTIONS',
-      }
-    }).json();
-    setTempRows(responseJson);
-    setTableRows(responseJson);
-  }
-
   useEffect(() => {
-    getEmployeeData();
-  }, []);
-
-  const arraySearch = (array, keyword) => {
-    const searchTerm = keyword.toLowerCase()
-    return array.filter(value => {
-      return value.firstName.toLowerCase().match(new RegExp(searchTerm, 'g')) ||
-        value.lastName.toLowerCase().match(new RegExp(searchTerm, 'g'))
-    })
-  }
+    dispatch(fetchEmployeesThunk());
+  },[]);
 
   const searchTextValueChanged = (event) => {
-    const searchTextChangeValue = event.target.value
-    if (searchTextChangeValue.length >= 2) {
-      const searchItems = arraySearch(rows, searchTextChangeValue)
-      setTableRows(searchItems);
-    }
-    else {
-      setTableRows(tempRows);
-    }
+    dispatch(updateEmployeeSearch(event.target.value))
   }
 
   const editClickedEmployee = (event) => {
@@ -166,53 +146,19 @@ export default function HomePage(props) {
   }
 
   const deleteClickedEmployee = async (event) => {
-    const responseJson = await ky.delete('https://localhost:7168/Employee/DeleteEmployee?id=' + event.currentTarget.id, {
-      headers: {
-        'content-type': 'application/json',
-        'Access-Control-Allow-Origin': 'http://localhost:3000',
-        'Access-Control-Allow-Credentials': 'true',
-        'Access-Control-Allow-Methods': 'DELETE, POST, GET, OPTIONS',
-      }
-    }).json();
-    if (responseJson) {
-      getEmployeeData();
-    }
-    else {
-      alert("Something Went wrong, please try again")
-    }
+    dispatch(deleteEmployeeThunk(event.currentTarget.id));
   }
 
   const validateandAddEmployeeDataOperation = async (addEmployeeRequestData) => {
     const isValidEmployee = await validEmployeeSchema.isValid(addEmployeeRequestData)
     if (isValidEmployee) {
-      const responseJson = await ky.post('https://localhost:7168/Employee/AddEmployee', {
-        headers: {
-          'content-type': 'application/json',
-          'Access-Control-Allow-Origin': 'http://localhost:3000',
-          'Access-Control-Allow-Credentials': 'true',
-          'Access-Control-Allow-Methods': 'DELETE, POST, GET, OPTIONS',
-        },
-        json:
-        {
-          FirstName: addEmployeeRequestData.FirstName,
-          LastName: addEmployeeRequestData.LastName,
-          CurrentProjectName: addEmployeeRequestData.CurrentProjectName,
-          EmailAddress: addEmployeeRequestData.EmailAddress
-        },
-      }).json();
-
-      if (responseJson) {
-        setButtonText("Add Employee");
-        setValue("FirstName", "");
-        setValue("LastName", "");
-        setValue("EmailAddress", "");
-        setValue("CurrentProjectName", "");
-        handleDrawerClose();
-        getEmployeeData();
-      }
-      else {
-        alert("Something Went Wrong, please try again")
-      }
+      dispatch(addEmployeeThunk(addEmployeeRequestData));
+      setButtonText("Add Employee");
+      setValue("FirstName", "");
+      setValue("LastName", "");
+      setValue("EmailAddress", "");
+      setValue("CurrentProjectName", "");
+      handleDrawerClose();
     }
     else {
       alert("Please check the information entered")
@@ -222,36 +168,15 @@ export default function HomePage(props) {
   const validateandUpdateEmployeeDataOperation = async (updateEmployeeRequestData) => {
     const isValidEmployee = await validEmployeeSchema.isValid(updateEmployeeRequestData)
     if (isValidEmployee) {
-      const responseJson = await ky.post('https://localhost:7168/Employee/UpdateEmployee', {
-        headers: {
-          'content-type': 'application/json',
-          'Access-Control-Allow-Origin': 'http://localhost:3000',
-          'Access-Control-Allow-Credentials': 'true',
-          'Access-Control-Allow-Methods': 'DELETE, POST, GET, OPTIONS',
-        },
-        json:
-        {
-          EmployeeId: filteredEmployeeDetailId,
-          FirstName: updateEmployeeRequestData.FirstName,
-          LastName: updateEmployeeRequestData.LastName,
-          CurrentProjectName: updateEmployeeRequestData.CurrentProjectName,
-          EmailAddress: updateEmployeeRequestData.EmailAddress
-        },
-      }).json();
-
-      if (responseJson) {
-        setButtonText("Add Employee");
-        setValue("FirstName", "");
-        setValue("LastName", "");
-        setValue("EmailAddress", "");
-        setValue("CurrentProjectName", "");
-        handleDrawerClose();
-        getEmployeeData();
-      }
-      else {
-        alert("Something Went Wrong, please try again")
-      }
-    }
+      updateEmployeeRequestData.employeeId = filteredEmployeeDetailId;
+      dispatch(updateEmployeeThunk(updateEmployeeRequestData));
+      setButtonText("Add Employee");
+      setValue("FirstName", "");
+      setValue("LastName", "");
+      setValue("EmailAddress", "");
+      setValue("CurrentProjectName", "");
+      handleDrawerClose();
+     }
     else {
       alert("Please check the information entered")
     }
@@ -291,7 +216,7 @@ export default function HomePage(props) {
           <Box>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar sx={{ bgcolor: 'green' }} alt={sessionStorage.getItem("ProfileUserName")} src="/src/user.png" />
+                <Avatar sx={{ bgcolor: 'green' }} alt={ProfileUserName} src="/src/user.png" />
               </IconButton>
             </Tooltip>
             <Menu
@@ -346,9 +271,9 @@ export default function HomePage(props) {
             padding: '25px',
           }}>
             <div>
-              <label style={{ fontSize: '30px' }} >{ buttonText === 'Add Employee' ? 'New Employee' : 'Update Employee' }</label>
+              <label style={{ fontSize: '30px' }} >{buttonText === 'Add Employee' ? 'New Employee' : 'Update Employee'}</label>
               <div style={{ marginTop: '20px' }} >
-                <label>{ buttonText === 'Add Employee' ? 'Please fill out the form below to create a new employee' : 'Please Update the relevant information to update the employee details' }</label>
+                <label>{buttonText === 'Add Employee' ? 'Please fill out the form below to create a new employee' : 'Please Update the relevant information to update the employee details'}</label>
               </div>
             </div>
           </Paper>
@@ -427,7 +352,7 @@ export default function HomePage(props) {
               </TableHead>
               <TableBody>
                 {rows.map((row) => (
-                  <TableRow >
+                  <TableRow>
                     <TableCell align="right" component="th" scope="row">
                       {row.firstName}
                     </TableCell>

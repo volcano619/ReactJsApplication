@@ -1,24 +1,30 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './index.css';
 import App from './App';
-import TestView from './TestView';
-import HomePage from "./HomePage";
-import AddEditEmployee from './AddEditEmployee';
 import reportWebVitals from './reportWebVitals';
+import { configureStore } from "@reduxjs/toolkit";
+import { Provider } from "react-redux";
+
+import rootReducer from './EmployeeListReducer';
+
+const store = configureStore({
+  reducer: rootReducer
+});
+
+
+// const store = configureStore({
+//   reducer: {
+//     employeelist : employeelistReducer,
+//   },
+// });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        {/* <Route path="/" element={<TestView></TestView>}></Route> */}
-        <Route path="/" element={<App></App>}></Route>
-        <Route path='/homepage' element={<HomePage></HomePage>} />
-        <Route path='/addemployee' element={<AddEditEmployee></AddEditEmployee>} ></Route>
-      </Routes>
-    </BrowserRouter>
+    <Provider store={store}>
+      <App/>
+    </Provider>
   </React.StrictMode>
 );
 

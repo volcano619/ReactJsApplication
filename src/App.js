@@ -1,171 +1,19 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import ky from 'ky';
-import { Grid, TextField, Button, Paper } from "@mui/material";
-import "./App.css";
-import logo from "./logo.svg";
-import CustomAppBar from "./CustomAppBar";
-import * as yup from "yup";
+import React from 'react';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import TestView from './TestView';
+import Login from './Login';
+import HomePage from "./HomePage";
+import AddEditEmployee from './AddEditEmployee';
 
 export default function App() {
-    const { register, handleSubmit } = useForm();
-    const [open, setOpen] = useState(false);
-    let navigate = useNavigate();
-
-    const loginSchema = yup.object().shape({
-        LoginUsername: yup.string().email().required(),
-        LoginPassword: yup.string().min(8).required(),
-    })
-
-    const validateLogin = async (loginData) => {
-        const isLoginDataValid = await loginSchema.isValid(loginData, { abortEarly: false });
-        if (isLoginDataValid) {
-            const responseJson = await ky.post('https://localhost:7168/Employee/DoLogin', {
-                headers: {
-                    'content-type': 'application/json',
-                    'Access-Control-Allow-Origin': 'http://localhost:3000',
-                    'Access-Control-Allow-Credentials': 'true',
-                    'Access-Control-Allow-Methods': 'DELETE, POST, GET, OPTIONS',
-                },
-                json: {
-                    "LoginUsername": loginData.LoginUsername,
-                    "LoginPassword": loginData.LoginPassword,
-                },
-            }).json();
-
-            if (responseJson) {
-                sessionStorage.setItem("ProfileUserName", loginData.LoginUsername)
-                navigate('homepage');
-            }
-
-            else {
-                alert("Not able to login");
-            }
-
-            // setOpen(!responseJson);
-            // return (
-            //     <Dialog open={open} >
-            //         <DialogContent>
-            //             The credentials you have entered are incorrect
-            //         </DialogContent>
-            //     </Dialog>
-            // );
-        }
-        else {
-            alert("Please Check your credentials");
-        }
-    };
-
-    const validateUserRegistration = async (registrationData) => {
-        const isRegistrationDataValid = await loginSchema.isValid(registrationData, { abortEarly: false });
-        if (isRegistrationDataValid) {
-            const responseJson = await ky.post('https://localhost:7168/Employee/RegisterAdminUser', {
-                headers: {
-                    'content-type': 'application/json',
-                    'Access-Control-Allow-Origin': 'http://localhost:3000',
-                    'Access-Control-Allow-Credentials': 'true',
-                    'Access-Control-Allow-Methods': 'DELETE, POST, GET, OPTIONS',
-                },
-                json: {
-                    "LoginUsername": registrationData.RegLoginUsername,
-                    "LoginPassword": registrationData.RegLoginPassword,
-                },
-            }).json();
-
-            if (responseJson) {
-                alert("Registration Successful");
-            }
-            else {
-                alert("Registration Failed");
-            }
-
-            // setOpen(!responseJson);
-            // return (
-            //     <Dialog open={open} >
-            //         <DialogContent>
-            //             The credentials you have entered are incorrect
-            //         </DialogContent>
-            //     </Dialog>
-            // );
-        }
-
-        else {
-            alert("Registration Failed");
-        }
-    };
-
     return (
-        <div className="App">
-            <header className="App-header">
-                <CustomAppBar isHomePage='false' ></CustomAppBar>
-                <img className="App-logo" alt="" src={logo} height="300px" width="300px" />
-                <Grid paddingLeft="55px" container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
-                    <Grid item xs={5.5} direction="row" justifyContent="center" alignItems="center" className="Login">
-                        <Paper elevation={3} className="Paper-styles">
-                            <label className="App-font-bold">Login</label>
-                            <div style={{ marginTop: '50px' }} className="Usernamediv">
-                                <TextField
-                                    {...register("LoginUsername")}
-                                    label="Enter Username"
-                                    size="small"
-                                    required
-                                />
-                            </div>
-                            <div style={{ marginTop: '20px' }} className="Passwordiv">
-                                <TextField
-                                    {...register("LoginPassword")}
-                                    label="Enter Password"
-                                    size="small"
-                                    required
-                                    type="password"
-                                />
-                            </div>
-                            <div style={{ marginTop: '20px' }} className="Button">
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={handleSubmit(validateLogin)}
-                                >
-                                    Log In
-                                </Button>
-                            </div>
-                        </Paper>
-                    </Grid>
-                    <label padding="20px" className="App-font-small" item xs={0.5} height="5px" width="5px" >OR</label>
-                    <Grid id="RegisterGrid" item xs={5.5} direction="row" justifyContent="center" alignItems="center">
-                        <Paper elevation={3} className="Paper-styles">
-                            <label className="App-font-bold">Sign Up</label>
-                            <div style={{ marginTop: '50px' }} className="Usernamediv">
-                                <TextField
-                                    label="Enter Username"
-                                    size="small"
-                                    required
-                                    {...register("RegLoginUsername")}
-                                />
-                            </div>
-                            <div style={{ marginTop: '20px' }} className="Passwordiv">
-                                <TextField
-                                    label="Enter Password"
-                                    size="small"
-                                    required
-                                    type="password"
-                                    {...register("RegLoginPassword")}
-                                />
-                            </div>
-                            <div style={{ marginTop: '20px' }} className="Button">
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={handleSubmit(validateUserRegistration)}
-                                >
-                                    Sign Up
-                                </Button>
-                            </div>
-                        </Paper>
-                    </Grid>
-                </Grid>
-            </header>
-        </div >
+        <BrowserRouter>
+            <Routes>
+                {/* <Route path="/" element={<TestView></TestView>}></Route> */}
+                <Route path="/" element={<Login></Login>}></Route>
+                <Route path='/homepage' element={<HomePage></HomePage>} />
+                <Route path='/addemployee' element={<AddEditEmployee></AddEditEmployee>} ></Route>
+            </Routes>
+        </BrowserRouter>
     );
 }

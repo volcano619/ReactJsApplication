@@ -6,7 +6,7 @@ const initialState = {
     valueBackup: [],
     userLoggedIn: false,
     isRegistrationSuccessful: false,
-    profileUserName: "Admin",
+    profileUserName: 'Admin',
     status: 'idle',
 };
 
@@ -84,7 +84,7 @@ export const arrayUpdate = (arr, updatedItem) => {
 }
 
 export const arrayRemove = (arr, value) => {
-    return arr.filter(function (item) {
+    return arr.filter(item => {
         return item.employeeId !== value;
     });
 }
@@ -211,6 +211,7 @@ export const getEmployeeListData = (state) => state.employeelist.value;
 export const getEmployeeSearchData = (state) => state.employeelist.searchedItem;
 export const getUserProfileUsername = (state) => state.employeelist.profileUserName;
 export const getUserLoggedInStatus = (state) => state.employeelist.userLoggedIn;
+export const getUserRegistrationnStatus = (state) => state.employeelist.isRegistrationSuccessful;
 
 export const { updateEmployeeSearch, doLogout } = EmployeeListSlice.actions;
 export default EmployeeListSlice.reducer;

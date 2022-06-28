@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import * as yup from "yup";
-import { fetchEmployeesThunk, addEmployeeThunk, updateEmployeeThunk, deleteEmployeeThunk, updateEmployeeSearch, doLogout } from "./EmployeeListSlice";
+import { sagaActions } from "./sagaActions";
 
 
 const drawerWidth = 480;
@@ -80,7 +80,7 @@ export default function HomePage() {
   const dispatch = useDispatch();
   const rows = useSelector((state) => state.employeelist.value);
   const UserLoggedIn = useSelector((state) => state.employeelist.userLoggedIn);
-  const ProfileUserName = useSelector((state) => state.employeelist.profileUserName);
+  const ProfileUserName = sessionStorage.getItem('ProfileUserName');
   const { register, handleSubmit, setValue } = useForm();
   const [anchorElUser, setAnchorElUser] = useState(null);
 
@@ -97,9 +97,9 @@ export default function HomePage() {
 
   const handleCloseUserMenu = (event) => {
     if (event.currentTarget.id === 'Logout') {
-      dispatch(doLogout());
+      dispatch({ type: sagaActions.DO_LOGOUT_SAGA });
       setAnchorElUser(null);
-      if(!UserLoggedIn){
+      if (!UserLoggedIn) {
         navigate('../')
       }
     }
@@ -127,11 +127,11 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    dispatch(fetchEmployeesThunk());
-  },[]);
+    dispatch({ type: sagaActions.FETCH_EMPLOYEE_SAGA})
+  }, []);
 
   const searchTextValueChanged = (event) => {
-    dispatch(updateEmployeeSearch(event.target.value))
+    dispatch({ type: sagaActions.SEARCH_EMPLOYEE_SAGA, requestData: event.target.value });
   }
 
   const editClickedEmployee = (event) => {
@@ -146,13 +146,13 @@ export default function HomePage() {
   }
 
   const deleteClickedEmployee = async (event) => {
-    dispatch(deleteEmployeeThunk(event.currentTarget.id));
+    dispatch({ type: sagaActions.DELETE_EMPLOYEE_SAGA, requestData: event.currentTarget.id });
   }
 
   const validateandAddEmployeeDataOperation = async (addEmployeeRequestData) => {
     const isValidEmployee = await validEmployeeSchema.isValid(addEmployeeRequestData)
     if (isValidEmployee) {
-      dispatch(addEmployeeThunk(addEmployeeRequestData));
+      dispatch({ type: sagaActions.ADD_EMPLOYEE_SAGA, requestData: JSON.stringify(addEmployeeRequestData )});
       setButtonText("Add Employee");
       setValue("FirstName", "");
       setValue("LastName", "");
@@ -169,14 +169,14 @@ export default function HomePage() {
     const isValidEmployee = await validEmployeeSchema.isValid(updateEmployeeRequestData)
     if (isValidEmployee) {
       updateEmployeeRequestData.employeeId = filteredEmployeeDetailId;
-      dispatch(updateEmployeeThunk(updateEmployeeRequestData));
+      dispatch({ type: sagaActions.UPDATE_EMPLOYEE_SAGA, requestData: JSON.stringify(updateEmployeeRequestData) });
       setButtonText("Add Employee");
       setValue("FirstName", "");
       setValue("LastName", "");
       setValue("EmailAddress", "");
       setValue("CurrentProjectName", "");
       handleDrawerClose();
-     }
+    }
     else {
       alert("Please check the information entered")
     }

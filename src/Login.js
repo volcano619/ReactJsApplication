@@ -6,7 +6,7 @@ import logo from "./logo.svg";
 import CustomAppBar from "./CustomAppBar";
 import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
-import { doLoginThunk, doUserRegistrationThunk } from "./EmployeeListSlice";
+import { sagaActions } from "./sagaActions";
 
 export default function Login() {
     const { register, handleSubmit } = useForm();
@@ -23,7 +23,7 @@ export default function Login() {
     const validateLogin = async (loginData) => {
         const isLoginDataValid = await loginSchema.isValid(loginData, { abortEarly: false });
         if (isLoginDataValid) {
-            dispatch(doLoginThunk(loginData));
+            dispatch({ type: sagaActions.DO_LOGIN_SAGA, requestData: loginData });
             navigate('homepage');
         }
         else {
@@ -34,7 +34,7 @@ export default function Login() {
     const validateUserRegistration = async (registrationData) => {
         const isRegistrationDataValid = await loginSchema.isValid(registrationData, { abortEarly: false });
         if (isRegistrationDataValid) {
-            dispatch(doUserRegistrationThunk(registrationData))
+            dispatch({ type: sagaActions.DO_REGISTRATION_SAGA ,requestData:registrationData});
             if (userRegisteredSuccessfully) {
                 alert('User has been succesfully registered');
             }

@@ -1,5 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     value: [],
@@ -9,62 +8,6 @@ const initialState = {
     profileUserName: 'Admin',
     status: 'idle',
 };
-
-export const doLoginThunk = createAsyncThunk(
-    'employeelist/doLoginThunk',
-    async (loginUserData) => {
-        const res = await axios.post('https://localhost:7168/Employee/DoLogin', loginUserData).then(
-            (result) => result.data
-        )
-        return res;
-    })
-
-export const doUserRegistrationThunk = createAsyncThunk(
-    'employeelist/doUserRegistrationThunk',
-    async (registrationUserData) => {
-        const res = await axios.post('https://localhost:7168/Employee/RegisterAdminUser', registrationUserData).then(
-            (result) => result.data
-        )
-        return res;
-    })
-
-export const fetchEmployeesThunk = createAsyncThunk(
-    'employeelist/fetchEmployeesThunk',
-    async () => {
-        const res = await axios.get('https://localhost:7168/Employee/GetEmployeeList').then(
-            (result) => result.data
-        )
-        return res;
-    })
-
-export const addEmployeeThunk = createAsyncThunk(
-    'employeelist/addEmployeeThunk',
-    async (addEmployeeRequestData) => {
-        const res = await axios.post('https://localhost:7168/Employee/AddEmployee', addEmployeeRequestData).then(
-            (result) => result.data
-        )
-        if (res !== null) {
-            return res;
-        }
-    })
-
-export const deleteEmployeeThunk = createAsyncThunk(
-    'employeelist/deleteEmployeeThunk',
-    async (employeeId) => {
-        const res = await axios.delete('https://localhost:7168/Employee/DeleteEmployee?id=' + employeeId).then(
-            (result) => result.data
-        )
-        return res;
-    })
-
-export const updateEmployeeThunk = createAsyncThunk(
-    'employeelist/updateEmployeeThunk',
-    async (updateEmployeeRequestData) => {
-        const res = await axios.post('https://localhost:7168/Employee/UpdateEmployee', updateEmployeeRequestData).then(
-            (result) => result.data
-        )
-        return res;
-    })
 
 export const arraySearch = (array, keyword) => {
     const searchTerm = keyword.toLowerCase()
@@ -118,92 +61,68 @@ export const EmployeeListSlice = createSlice({
             state.valueBackup = [];
             state.profileUserName = "Admin";
             state.userLoggedIn = false;
+            sessionStorage.setItem('LoginStatus', state.userLoggedIn);
+            sessionStorage.setItem('ProfileUserName', state.profileUserName);
         },
-    },
 
-    extraReducers: (builder) => {
-        builder
-            .addCase(doLoginThunk.pending, (state, action) => {
-                state.status = 'idle';
-                state.value = [];
-            })
+        doLoginThunk: (state, action) => {
+            state.status = 'finished';
+            state.value = [];
+            state.valueBackup = [];
+            if (action.payload.loginUsername !== null) {
+                state.profileUserName = action.payload.loginUsername
+                state.userLoggedIn = true;
+                sessionStorage.setItem('ProfileUserName', state.profileUserName);
+                sessionStorage.setItem('LoginStatus', state.userLoggedIn);
+            }
+        },
 
-            .addCase(doLoginThunk.fulfilled, (state, action) => {
-                state.status = 'finished';
-                state.value = [];
-                state.valueBackup = [];
-                if (action.payload.loginUsername !== null) {
-                    state.profileUserName = action.payload.loginUsername
-                    state.userLoggedIn = true;
-                }
-            })
+        doUserRegistrationThunk: (state, action) => {
+            state.status = 'finished';
+            state.value = [];
+            state.valueBackup = [];
+            if (action.payload) {
+                state.isRegistrationSuccessful = true
+            }
+        },
 
-            .addCase(doUserRegistrationThunk.pending, (state, action) => {
-                state.status = 'idle';
-                state.value = [];
-            })
+        fetchEmployeesThunk: (state, action) => {
+            state.value = action.payload;
+            state.valueBackup = action.payload;
+            state.status = 'finished';
+        },
 
-            .addCase(doUserRegistrationThunk.fulfilled, (state, action) => {
-                state.status = 'finished';
-                state.value = [];
-                state.valueBackup = [];
-                if (action.payload) {
-                    state.isRegistrationSuccessful = true
-                }
-            })
+        addEmployeeThunk: (state, action) => {
+            state.status = 'finished';
+            if (action.payload !== null) {
+                state.value.push(action.payload);
+                state.valueBackup.push(action.payload);
+            }
+        },
 
-            .addCase(fetchEmployeesThunk.pending, (state, action) => {
-                state.status = 'idle';
-                state.value = [];
-            })
-            .addCase(fetchEmployeesThunk.fulfilled, (state, action) => {
-                state.value = action.payload;
-                state.valueBackup = action.payload;
-                state.status = 'finished';
-            })
-            .addCase(addEmployeeThunk.pending, (state, action) => {
-                state.status = 'idle';
-            })
+        updateEmployeeThunk: (state, action) => {
+            state.status = 'finished';
+            const updatedEmployeeList = arrayUpdate(state.valueBackup, action.payload);
+            if (updatedEmployeeList.length > 0) {
+                state.value = updatedEmployeeList;
+                state.valueBackup = updatedEmployeeList;
+            }
+            else {
+                state.value = state.valueBackup;
+            }
+        },
 
-            .addCase(addEmployeeThunk.fulfilled, (state, action) => {
-                state.status = 'finished';
-                if (action.payload !== null) {
-                    state.value.push(action.payload);
-                    state.valueBackup.push(action.payload);
-                }
-            })
-
-            .addCase(updateEmployeeThunk.pending, (state, action) => {
-                state.status = 'idle';
-            })
-
-            .addCase(updateEmployeeThunk.fulfilled, (state, action) => {
-                state.status = 'finished';
-                const updatedEmployeeList = arrayUpdate(state.valueBackup, action.payload);
-                if (updatedEmployeeList.length > 0) {
-                    state.value = updatedEmployeeList;
-                    state.valueBackup = updatedEmployeeList;
-                }
-                else {
-                    state.value = state.valueBackup;
-                }
-            })
-
-            .addCase(deleteEmployeeThunk.pending, (state, action) => {
-                state.status = 'idle';
-            })
-
-            .addCase(deleteEmployeeThunk.fulfilled, (state, action) => {
-                state.status = 'finished';
-                const updatedEmployeeList = arrayRemove(state.valueBackup, action.payload);
-                if (updatedEmployeeList.length > 0) {
-                    state.value = updatedEmployeeList;
-                    state.valueBackup = updatedEmployeeList;
-                }
-                else {
-                    state.value = state.valueBackup;
-                }
-            })
+        deleteEmployeeThunk: (state, action) => {
+            state.status = 'finished';
+            const updatedEmployeeList = arrayRemove(state.valueBackup, action.payload);
+            if (updatedEmployeeList.length > 0) {
+                state.value = updatedEmployeeList;
+                state.valueBackup = updatedEmployeeList;
+            }
+            else {
+                state.value = state.valueBackup;
+            }
+        },
     },
 });
 
@@ -213,5 +132,5 @@ export const getUserProfileUsername = (state) => state.employeelist.profileUserN
 export const getUserLoggedInStatus = (state) => state.employeelist.userLoggedIn;
 export const getUserRegistrationnStatus = (state) => state.employeelist.isRegistrationSuccessful;
 
-export const { updateEmployeeSearch, doLogout } = EmployeeListSlice.actions;
+export const { doLoginThunk, doUserRegistrationThunk, fetchEmployeesThunk, addEmployeeThunk, updateEmployeeThunk, deleteEmployeeThunk, updateEmployeeSearch, doLogout } = EmployeeListSlice.actions;
 export default EmployeeListSlice.reducer;

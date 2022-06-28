@@ -23,7 +23,7 @@ export default function Login() {
     const validateLogin = async (loginData) => {
         const isLoginDataValid = await loginSchema.isValid(loginData, { abortEarly: false });
         if (isLoginDataValid) {
-            dispatch({ type: sagaActions.DO_LOGIN_SAGA, requestData: loginData });
+            dispatch({ type: sagaActions.DO_LOGIN_SAGA, requestData: JSON.stringify(loginData) });
             navigate('homepage');
         }
         else {
@@ -34,7 +34,7 @@ export default function Login() {
     const validateUserRegistration = async (registrationData) => {
         const isRegistrationDataValid = await loginSchema.isValid(registrationData, { abortEarly: false });
         if (isRegistrationDataValid) {
-            dispatch({ type: sagaActions.DO_REGISTRATION_SAGA ,requestData:registrationData});
+            dispatch({ type: sagaActions.DO_REGISTRATION_SAGA, requestData: JSON.stringify(registrationData) });
             if (userRegisteredSuccessfully) {
                 alert('User has been succesfully registered');
             }

@@ -10,17 +10,22 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { TextField, Button, Paper, TableBody, Table, TableHead, TableContainer, TableCell, TableRow, Tooltip, Menu, Avatar, MenuItem } from '@mui/material';
-import { DeleteForever, Edit } from '@mui/icons-material';
+import { TextField, Button, Paper, Tooltip, Menu, Avatar, MenuItem, Grid, } from '@mui/material';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import { DataGrid } from '@mui/x-data-grid';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import * as yup from "yup";
 import { sagaActions } from "./sagaActions";
 
-
 const drawerWidth = 480;
-
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
@@ -83,6 +88,114 @@ export default function HomePage() {
   const ProfileUserName = sessionStorage.getItem('ProfileUserName');
   const { register, handleSubmit, setValue } = useForm();
   const [anchorElUser, setAnchorElUser] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dataSelectionModel, setSelectionModel] = useState([]);
+
+  const handleDialogClickOpen = (employeeId) => {
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
+  const editClickedEmployee = (employeeId) => {
+    setButtonText("Update Employee");
+    const filteredEmployeeDetail = fetchClickedEmployeeDetail(employeeId);
+    setFilteredEmployeeDetailId(filteredEmployeeDetail[0].employeeId);
+    setSelectionModel(filteredEmployeeDetail[0]);
+    setValue("FirstName", filteredEmployeeDetail[0].firstName);
+    setValue("LastName", filteredEmployeeDetail[0].lastName);
+    setValue("EmailAddress", filteredEmployeeDetail[0].emailAddress);
+    setValue("CurrentProjectName", filteredEmployeeDetail[0].currentProjectName);
+    handleDrawerOpen();
+  }
+
+  const deleteClickedEmployee = async (employeeId) => {
+    dispatch({ type: sagaActions.DELETE_EMPLOYEE_SAGA, requestData: employeeId });
+    handleDialogClose();
+  }
+
+  const renderDetailsButton = (params) => {
+    return (
+      <strong>
+        <div>
+          <Tooltip title="Edit employee">
+            <IconButton onClick={() => { editClickedEmployee(params.row.employeeId); }} >
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete employee">
+            <IconButton onClick={() => { handleDialogClickOpen(params.row.employeeId); }}>
+              <DeleteForeverIcon />
+            </IconButton>
+          </Tooltip>
+          <Dialog
+            open={dialogOpen}
+            onClose={handleDialogClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              {"Delete Employee"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Do you like to delete this employee?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleDialogClose}>Disagree</Button>
+              <Button onClick={() => { deleteClickedEmployee(params.row.employeeId); }} autoFocus>
+                Agree
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
+      </strong>
+    )
+  }
+
+  const columns = [
+    { field: 'employeeId', headerName: 'Employee ID', width: 150 },
+    {
+      field: 'firstName',
+      headerName: 'First name',
+      width: 150,
+    },
+    {
+      field: 'lastName',
+      headerName: 'Last name',
+      width: 150,
+    },
+    {
+      field: 'currentProjectName',
+      headerName: 'Company Name',
+      width: 150,
+    },
+    {
+      field: 'emailAddress',
+      headerName: 'Email Address',
+      width: 250,
+    },
+    {
+      field: 'fullName',
+      headerName: 'Full name',
+      description: 'This column has a value getter and is not sortable.',
+      sortable: false,
+      width: 150,
+      valueGetter: (params) =>
+        `${params.row.firstName || ''} ${params.row.lastName || ''}`,
+    },
+    {
+      field: 'actions',
+      type: 'actions',
+      headerName: 'Actions',
+      width: 100,
+      renderCell: renderDetailsButton,
+      cellClassName: 'actions',
+    },
+  ];
 
   const validEmployeeSchema = yup.object().shape({
     FirstName: yup.string().required(),
@@ -127,32 +240,14 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    dispatch({ type: sagaActions.FETCH_EMPLOYEE_SAGA})
+    dispatch({ type: sagaActions.FETCH_EMPLOYEE_SAGA })
+    console.log(rows);
   }, []);
-
-  const searchTextValueChanged = (event) => {
-    dispatch({ type: sagaActions.SEARCH_EMPLOYEE_SAGA, requestData: event.target.value });
-  }
-
-  const editClickedEmployee = (event) => {
-    setButtonText("Update Employee");
-    const filteredEmployeeDetail = fetchClickedEmployeeDetail(event.currentTarget.id);
-    setFilteredEmployeeDetailId(filteredEmployeeDetail[0].employeeId);
-    setValue("FirstName", filteredEmployeeDetail[0].firstName);
-    setValue("LastName", filteredEmployeeDetail[0].lastName);
-    setValue("EmailAddress", filteredEmployeeDetail[0].emailAddress);
-    setValue("CurrentProjectName", filteredEmployeeDetail[0].currentProjectName);
-    handleDrawerOpen();
-  }
-
-  const deleteClickedEmployee = async (event) => {
-    dispatch({ type: sagaActions.DELETE_EMPLOYEE_SAGA, requestData: event.currentTarget.id });
-  }
 
   const validateandAddEmployeeDataOperation = async (addEmployeeRequestData) => {
     const isValidEmployee = await validEmployeeSchema.isValid(addEmployeeRequestData)
     if (isValidEmployee) {
-      dispatch({ type: sagaActions.ADD_EMPLOYEE_SAGA, requestData: JSON.stringify(addEmployeeRequestData )});
+      dispatch({ type: sagaActions.ADD_EMPLOYEE_SAGA, requestData: JSON.stringify(addEmployeeRequestData) });
       setButtonText("Add Employee");
       setValue("FirstName", "");
       setValue("LastName", "");
@@ -175,6 +270,7 @@ export default function HomePage() {
       setValue("LastName", "");
       setValue("EmailAddress", "");
       setValue("CurrentProjectName", "");
+      setSelectionModel([]);
       handleDrawerClose();
     }
     else {
@@ -188,6 +284,7 @@ export default function HomePage() {
     setValue("LastName", "");
     setValue("EmailAddress", "");
     setValue("CurrentProjectName", "");
+    setSelectionModel([]);
     handleDrawerClose();
   }
 
@@ -265,24 +362,24 @@ export default function HomePage() {
         <Divider />
 
         <div sx={{ display: "flex", flexDirection: "column", alignItems: "center", }} >
-          <Paper elevation={3} sx={{
+          <Paper elevation={1} sx={{
             backgroundColor: 'white',
-            marginTop: '20px',
+            marginTop: '10px',
             padding: '25px',
           }}>
             <div>
               <label style={{ fontSize: '30px' }} >{buttonText === 'Add Employee' ? 'New Employee' : 'Update Employee'}</label>
-              <div style={{ marginTop: '20px' }} >
+              <div style={{ marginTop: '10px' }} >
                 <label>{buttonText === 'Add Employee' ? 'Please fill out the form below to create a new employee' : 'Please Update the relevant information to update the employee details'}</label>
               </div>
             </div>
           </Paper>
-          <Paper elevation={3} sx={{
+          <Grid sx={{
             backgroundColor: 'white',
-            marginTop: '20px',
+            marginTop: '10px',
             padding: '25px',
           }}>
-            <div style={{ marginTop: '25px' }} >
+            <div style={{ marginTop: '10px' }} >
               <label>First Name</label>
             </div>
             <div style={{ marginTop: '10px' }} className="Usernamediv">
@@ -293,7 +390,7 @@ export default function HomePage() {
                 required
               />
             </div>
-            <div style={{ marginTop: '50px' }} >
+            <div style={{ marginTop: '25px' }} >
               <label>Last Name</label>
             </div>
             <div style={{ marginTop: '10px' }} className="Usernamediv">
@@ -304,7 +401,7 @@ export default function HomePage() {
                 required
               />
             </div>
-            <div style={{ marginTop: '50px' }} >
+            <div style={{ marginTop: '25px' }} >
               <label>Company</label>
             </div>
             <div style={{ marginTop: '10px' }} className="Usernamediv">
@@ -315,7 +412,7 @@ export default function HomePage() {
                 required
               />
             </div>
-            <div style={{ marginTop: '50px' }} >
+            <div style={{ marginTop: '25px' }} >
               <label>Email Address</label>
             </div>
             <div style={{ marginTop: '10px' }} className="Usernamediv">
@@ -327,59 +424,26 @@ export default function HomePage() {
               />
             </div>
 
-            <div style={{ marginTop: '45px' }} >
+            <div style={{ marginTop: '40px' }} >
               <Button id={buttonText} sx={{ bgcolor: 'green', color: 'white', padding: '10px', marginLeft: '30px', '&:hover': { bgcolor: 'lightgreen' } }} onClick={handleSubmit(addEditButtonClicked)} >{buttonText}</Button>
               <Button id="cancelOperation" sx={{ bgcolor: 'black', color: 'white', padding: '10px', marginLeft: '30px', '&:hover': { bgcolor: 'gray' } }} onClick={cancelEmployeeCreation}>Cancel</Button>
             </div>
-          </Paper>
+          </Grid>
         </div>
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
-        <div>
-          <TextField sx={{ alignSelf: "end", margin: "10px" }} onChange={searchTextValueChanged}
-            size="small" label="Search field" type="search" />
-          <TableContainer component={Paper}>
-            <Table aria-label="simple table" >
-              <TableHead>
-                <TableRow>
-                  <TableCell align="right" >First Name</TableCell>
-                  <TableCell align="right">Last Name</TableCell>
-                  <TableCell align="right">Company</TableCell>
-                  <TableCell align="right">Email</TableCell>
-                  <TableCell align="right" >Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row) => (
-                  <TableRow>
-                    <TableCell align="right" component="th" scope="row">
-                      {row.firstName}
-                    </TableCell>
-                    <TableCell align="right" >
-                      {row.lastName}
-                    </TableCell>
-                    <TableCell align="right">{row.currentProjectName}</TableCell>
-                    <TableCell align="right">{row.emailAddress}</TableCell>
-                    <TableCell align="right">
-                      <div>
-                        <Tooltip title="Edit employee">
-                          <IconButton id={row.employeeId} onClick={editClickedEmployee} >
-                            <Edit />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete employee">
-                          <IconButton id={row.employeeId} onClick={deleteClickedEmployee}>
-                            <DeleteForever />
-                          </IconButton>
-                        </Tooltip>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+        <div sx={{ display: "flex", flexDirection: "column", alignItems: "center", }} >
+          <Box sx={{ height: 400, width: '75%' }}>
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              pageSize={5}
+              getRowId={(row) => row.employeeId}
+              rowsPerPageOptions={[5]}
+              disableSelectionOnClick={true}
+            />
+          </Box>
         </div >
       </Main>
     </Box>

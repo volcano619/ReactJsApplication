@@ -9,14 +9,6 @@ const initialState = {
     status: 'idle',
 };
 
-export const arraySearch = (array, keyword) => {
-    const searchTerm = keyword.toLowerCase()
-    return array.filter(value => {
-        return value.firstName.toLowerCase().match(new RegExp(searchTerm, 'g')) ||
-            value.lastName.toLowerCase().match(new RegExp(searchTerm, 'g'))
-    })
-}
-
 export const arrayUpdate = (arr, updatedItem) => {
     return arr.map(item => {
         if (item.employeeId === updatedItem.employeeId) {
@@ -37,23 +29,6 @@ export const EmployeeListSlice = createSlice({
     initialState: initialState,
 
     reducers: {
-        updateEmployeeSearch: (state, action) => {
-            try {
-                const searchTextChangeValue = action.payload;
-                if (searchTextChangeValue.length > 2) {
-                    const searchItems = arraySearch(state.valueBackup, searchTextChangeValue)
-                    if (searchItems.length > 0) {
-                        state.value = searchItems;
-                    }
-                }
-                else if (searchTextChangeValue.length === 0) {
-                    state.value = state.valueBackup;
-                }
-            }
-            catch (e) {
-                console.log(e);
-            }
-        },
 
         doLogout: (state) => {
             state.status = 'idle';
@@ -132,5 +107,5 @@ export const getUserProfileUsername = (state) => state.employeelist.profileUserN
 export const getUserLoggedInStatus = (state) => state.employeelist.userLoggedIn;
 export const getUserRegistrationnStatus = (state) => state.employeelist.isRegistrationSuccessful;
 
-export const { doLoginThunk, doUserRegistrationThunk, fetchEmployeesThunk, addEmployeeThunk, updateEmployeeThunk, deleteEmployeeThunk, updateEmployeeSearch, doLogout } = EmployeeListSlice.actions;
+export const { doLoginThunk, doUserRegistrationThunk, fetchEmployeesThunk, addEmployeeThunk, updateEmployeeThunk, deleteEmployeeThunk, doLogout } = EmployeeListSlice.actions;
 export default EmployeeListSlice.reducer;

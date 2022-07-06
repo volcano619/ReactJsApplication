@@ -90,16 +90,11 @@ export function* doUserRegistrationSaga(registrationUserData) {
     }
 }
 
-export function* employeeSearchSaga(employeeSearchRequest) {
-    yield put(updateEmployeeSearch(employeeSearchRequest.requestData));
-}
-
 export function* doLogoutSaga() {
     yield put(doLogout());
 }
 
 export default function* rootSaga() {
-
     yield takeEvery(sagaActions.FETCH_EMPLOYEE_SAGA, fetchEmployeesSaga)
     yield takeEvery(sagaActions.ADD_EMPLOYEE_SAGA, addEmployeeSaga)
     yield takeEvery(sagaActions.UPDATE_EMPLOYEE_SAGA, updateEmployeeSaga)
@@ -107,5 +102,5 @@ export default function* rootSaga() {
     yield takeEvery(sagaActions.DO_LOGIN_SAGA, doLoginSaga)
     yield takeEvery(sagaActions.DO_LOGOUT_SAGA, doLogoutSaga)
     yield takeEvery(sagaActions.DO_REGISTRATION_SAGA, doUserRegistrationSaga)
-    yield takeEvery(sagaActions.SEARCH_EMPLOYEE_SAGA, employeeSearchSaga)
+    // yield takeEvery(sagaActions.SEARCH_EMPLOYEE_SAGA, employeeSearchSaga)
 }

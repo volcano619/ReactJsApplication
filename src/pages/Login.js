@@ -1,33 +1,50 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Grid, TextField, Button, Paper } from "@mui/material";
-import "./App.css";
-import logo from "./logo.svg";
-import CustomAppBar from "./CustomAppBar";
+import "../App.css";
+import logo from "../logo.svg";
 import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
-import { sagaActions } from "./sagaActions";
+import { sagaActions } from "../sagafiles/sagaActions";
+import YupPassword from 'yup-password'
+import { useState } from "react";
+import CustomAppBar from './CustomAppBar';
+YupPassword(yup)
 
 export default function Login() {
     const { register, handleSubmit } = useForm();
     let navigate = useNavigate();
     let dispatch = useDispatch();
+    const [usernameHelperText, setUsernameHelperText] = useState();
+    const [passwordHelperText, setPasswordHelperText] = useState();
+    const [usernameErrorStatus, setUsernameErrorStatus] = useState();
+    const [passwordErrorStatus, setPasswordErrorStatus] = useState();
 
     //const isLoggedIn = Boolean(useSelector((state) => state.employeelist.userLoggedIn));
     const userRegisteredSuccessfully = Boolean(useSelector((state) => state.employeelist.isRegistrationSuccessful));
     const loginSchema = yup.object().shape({
-        LoginUsername: yup.string().email().required(),
-        LoginPassword: yup.string().min(8).required(),
+        Username: yup.string().email().required(),
+        Password: yup.string().password().required(),
     })
 
     const validateLogin = async (loginData) => {
-        const isLoginDataValid = await loginSchema.isValid(loginData, { abortEarly: false });
-        if (isLoginDataValid) {
-            dispatch({ type: sagaActions.DO_LOGIN_SAGA, requestData: JSON.stringify(loginData) });
+        const validationOutput = await loginSchema.validate(loginData).catch((error) => {
+            if (error.errors[0].toLowerCase().includes('password')) {
+                setPasswordHelperText('Please check your password');
+                setPasswordErrorStatus(true);
+            }
+            else if (error.errors[0].toLowerCase().includes('username')) {
+                setUsernameHelperText('Please check your username');
+                setUsernameErrorStatus(true);
+            }
+        });
+        if (validationOutput !== undefined) {
+            setPasswordHelperText('');
+            setPasswordErrorStatus(false);
+            setUsernameHelperText('');
+            setUsernameErrorStatus(false);
+            dispatch({ type: sagaActions.DO_LOGIN_SAGA, requestData: JSON.stringify({LoginUsername:loginData.Username, LoginPassword:loginData.Password}) });
             navigate('homepage');
-        }
-        else {
-            alert("Please Check your credentials");
         }
     };
 
@@ -59,19 +76,23 @@ export default function Login() {
                             <label className="App-font-bold">Login</label>
                             <div style={{ marginTop: '50px' }} className="Usernamediv">
                                 <TextField
-                                    {...register("LoginUsername")}
+                                    {...register("Username")}
                                     label="Enter Username"
                                     size="small"
                                     required
+                                    error={usernameErrorStatus}
+                                    helperText={usernameHelperText}
                                 />
                             </div>
                             <div style={{ marginTop: '20px' }} className="Passwordiv">
                                 <TextField
-                                    {...register("LoginPassword")}
+                                    {...register("Password")}
                                     label="Enter Password"
                                     size="small"
                                     required
                                     type="password"
+                                    error={passwordErrorStatus}
+                                    helperText={passwordHelperText}
                                 />
                             </div>
                             <div style={{ marginTop: '20px' }} className="Button">

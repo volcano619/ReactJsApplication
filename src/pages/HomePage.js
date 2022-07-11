@@ -10,12 +10,7 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { TextField, Button, Paper, Tooltip, Menu, Avatar, MenuItem, Grid, } from '@mui/material';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import { TextField, Button, Paper, Tooltip, Menu, Avatar, MenuItem, Grid, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
@@ -23,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import * as yup from "yup";
-import { sagaActions } from "./sagaActions";
+import { sagaActions } from "../sagafiles/sagaActions";
 
 const drawerWidth = 480;
 
@@ -89,9 +84,22 @@ export default function HomePage() {
   const { register, handleSubmit, setValue } = useForm();
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [dataSelectionModel, setSelectionModel] = useState([]);
+  const [firstNameHelperText, setfirstNameHelperText] = useState();
+  const [firstNameErrorStatus, setfirstNameErrorStatus] = useState();
+  const [lastNameHelperText, setlastNameHelperText] = useState();
+  const [lastNameErrorStatus, setlastNameErrorStatus] = useState();
+  const [companyNameHelperText, setcompanyNameHelperText] = useState();
+  const [companyNameErrorStatus, setcompanyNameErrorStatus] = useState();
+  const [emailAddressHelperText, setemailAddressHelperText] = useState();
+  const [emailAddressErrorStatus, setemailAddressErrorStatus] = useState();
+  const [selectionModel, setSelectionModel] = React.useState([]);
+  // const [firstNameLabelText, setfirstNameLabelText] = useState();
+  // const [lastNameLabelText, setlastNameLabelText] = useState();
+  // const [companyNameLabelText, setcompanyNameLabelText] = useState();
+  // const [emailAddressLabelText, setemailAddressLabelText] = useState();
 
   const handleDialogClickOpen = (employeeId) => {
+    setSelectionModel(employeeId);
     setDialogOpen(true);
   };
 
@@ -101,13 +109,13 @@ export default function HomePage() {
 
   const editClickedEmployee = (employeeId) => {
     setButtonText("Update Employee");
+    setSelectionModel(employeeId);
     const filteredEmployeeDetail = fetchClickedEmployeeDetail(employeeId);
     setFilteredEmployeeDetailId(filteredEmployeeDetail[0].employeeId);
-    setSelectionModel(filteredEmployeeDetail[0]);
     setValue("FirstName", filteredEmployeeDetail[0].firstName);
     setValue("LastName", filteredEmployeeDetail[0].lastName);
     setValue("EmailAddress", filteredEmployeeDetail[0].emailAddress);
-    setValue("CurrentProjectName", filteredEmployeeDetail[0].currentProjectName);
+    setValue("CompanyName", filteredEmployeeDetail[0].currentProjectName);
     handleDrawerOpen();
   }
 
@@ -145,9 +153,9 @@ export default function HomePage() {
               </DialogContentText>
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleDialogClose}>Disagree</Button>
-              <Button onClick={() => { deleteClickedEmployee(params.row.employeeId); }} autoFocus>
-                Agree
+              <Button onClick={() => { handleDialogClose(); setSelectionModel([]); }}>No</Button>
+              <Button onClick={() => { deleteClickedEmployee(params.row.employeeId); setSelectionModel([]); }} autoFocus>
+                Yes
               </Button>
             </DialogActions>
           </Dialog>
@@ -200,7 +208,7 @@ export default function HomePage() {
   const validEmployeeSchema = yup.object().shape({
     FirstName: yup.string().required(),
     LastName: yup.string().required(),
-    CurrentProjectName: yup.string().required(),
+    CompanyName: yup.string().required(),
     EmailAddress: yup.string().email().required(),
   })
 
@@ -241,49 +249,104 @@ export default function HomePage() {
 
   useEffect(() => {
     dispatch({ type: sagaActions.FETCH_EMPLOYEE_SAGA })
-    console.log(rows);
   }, []);
 
   const validateandAddEmployeeDataOperation = async (addEmployeeRequestData) => {
-    const isValidEmployee = await validEmployeeSchema.isValid(addEmployeeRequestData)
-    if (isValidEmployee) {
-      dispatch({ type: sagaActions.ADD_EMPLOYEE_SAGA, requestData: JSON.stringify(addEmployeeRequestData) });
+    console.log(addEmployeeRequestData);
+    const validationOutput = await validEmployeeSchema.validate(addEmployeeRequestData, { abortEarly: false }).catch((error) => {
+      // eslint-disable-next-line array-callback-return
+      error.errors.map((errorMessage) => {
+        if (errorMessage.toLowerCase().includes('firstname')) {
+          setfirstNameHelperText('Please check the first name');
+          setfirstNameErrorStatus(true);
+        }
+        else if (errorMessage.toLowerCase().includes('lastname')) {
+          setlastNameHelperText('Please check the last name');
+          setlastNameErrorStatus(true);
+        }
+        else if (errorMessage.toLowerCase().includes('companyname')) {
+          setcompanyNameHelperText('Please check the company name');
+          setcompanyNameErrorStatus(true);
+        }
+        else if (errorMessage.toLowerCase().includes('emailaddress')) {
+          setemailAddressHelperText('Please check the email address');
+          setemailAddressErrorStatus(true);
+        }
+      });
+    });
+    if (validationOutput !== undefined) {
+      setfirstNameHelperText('');
+      setfirstNameErrorStatus(false);
+      setlastNameHelperText('');
+      setlastNameErrorStatus(false);
+      setcompanyNameHelperText('');
+      setcompanyNameErrorStatus(false);
+      setemailAddressHelperText('');
+      setemailAddressErrorStatus(false);
+      dispatch({ type: sagaActions.ADD_EMPLOYEE_SAGA, requestData: JSON.stringify({ FirstName: addEmployeeRequestData.FirstName, LastName: addEmployeeRequestData.LastName, EmailAddress: addEmployeeRequestData.EmailAddress, CurrentProjectName: addEmployeeRequestData.CompanyName }) });
       setButtonText("Add Employee");
       setValue("FirstName", "");
       setValue("LastName", "");
       setValue("EmailAddress", "");
-      setValue("CurrentProjectName", "");
+      setValue("CompanyName", "");
       handleDrawerClose();
-    }
-    else {
-      alert("Please check the information entered")
     }
   }
 
   const validateandUpdateEmployeeDataOperation = async (updateEmployeeRequestData) => {
-    const isValidEmployee = await validEmployeeSchema.isValid(updateEmployeeRequestData)
-    if (isValidEmployee) {
+    const validationOutput = await validEmployeeSchema.validate(updateEmployeeRequestData).catch((error) => {
+      if (error.errors[0].toLowerCase().includes('firstname')) {
+        setfirstNameHelperText('Please check the first name');
+        setfirstNameErrorStatus(true);
+      }
+      else if (error.errors[0].toLowerCase().includes('lastname')) {
+        setlastNameHelperText('Please check the last name');
+        setlastNameErrorStatus(true);
+      }
+      else if (error.errors[0].toLowerCase().includes('companyname')) {
+        setcompanyNameHelperText('Please check the company name');
+        setcompanyNameErrorStatus(true);
+      }
+      else if (error.errors[0].toLowerCase().includes('emailaddress')) {
+        setemailAddressHelperText('Please check the email address');
+        setemailAddressErrorStatus(true);
+      }
+    });
+    if (validationOutput !== undefined) {
+      setfirstNameHelperText('');
+      setfirstNameErrorStatus(false);
+      setlastNameHelperText('');
+      setlastNameErrorStatus(false);
+      setcompanyNameHelperText('');
+      setcompanyNameErrorStatus(false);
+      setemailAddressHelperText('');
+      setemailAddressErrorStatus(false);
       updateEmployeeRequestData.employeeId = filteredEmployeeDetailId;
-      dispatch({ type: sagaActions.UPDATE_EMPLOYEE_SAGA, requestData: JSON.stringify(updateEmployeeRequestData) });
+      dispatch({ type: sagaActions.UPDATE_EMPLOYEE_SAGA, requestData: JSON.stringify({ EmployeeId: updateEmployeeRequestData.employeeId, FirstName: updateEmployeeRequestData.FirstName, LastName: updateEmployeeRequestData.LastName, EmailAddress: updateEmployeeRequestData.EmailAddress, CurrentProjectName: updateEmployeeRequestData.CompanyName }) });
       setButtonText("Add Employee");
       setValue("FirstName", "");
       setValue("LastName", "");
       setValue("EmailAddress", "");
-      setValue("CurrentProjectName", "");
+      setValue("CompanyName", "");
       setSelectionModel([]);
       handleDrawerClose();
-    }
-    else {
-      alert("Please check the information entered")
     }
   }
 
   const cancelEmployeeCreation = (event) => {
+    setfirstNameHelperText('');
+    setfirstNameErrorStatus(false);
+    setlastNameHelperText('');
+    setlastNameErrorStatus(false);
+    setcompanyNameHelperText('');
+    setcompanyNameErrorStatus(false);
+    setemailAddressHelperText('');
+    setemailAddressErrorStatus(false);
     setButtonText("Add Employee");
     setValue("FirstName", "");
     setValue("LastName", "");
     setValue("EmailAddress", "");
-    setValue("CurrentProjectName", "");
+    setValue("CompanyName", "");
     setSelectionModel([]);
     handleDrawerClose();
   }
@@ -388,6 +451,8 @@ export default function HomePage() {
                 label={buttonText === "Add Employee" ? "Enter First Name" : ""}
                 size="small"
                 required
+                helperText={firstNameHelperText}
+                error={firstNameErrorStatus}
               />
             </div>
             <div style={{ marginTop: '25px' }} >
@@ -399,6 +464,8 @@ export default function HomePage() {
                 label={buttonText === "Add Employee" ? "Enter Last Name" : ""}
                 size="small"
                 required
+                helperText={lastNameHelperText}
+                error={lastNameErrorStatus}
               />
             </div>
             <div style={{ marginTop: '25px' }} >
@@ -406,10 +473,12 @@ export default function HomePage() {
             </div>
             <div style={{ marginTop: '10px' }} className="Usernamediv">
               <TextField
-                {...register("CurrentProjectName")}
+                {...register("CompanyName")}
                 label={buttonText === "Add Employee" ? "Enter Company Name" : ""}
                 size="small"
                 required
+                helperText={companyNameHelperText}
+                error={companyNameErrorStatus}
               />
             </div>
             <div style={{ marginTop: '25px' }} >
@@ -421,6 +490,8 @@ export default function HomePage() {
                 label={buttonText === "Add Employee" ? "Enter Email Address" : ""}
                 size="small"
                 required
+                helperText={emailAddressHelperText}
+                error={emailAddressErrorStatus}
               />
             </div>
 
@@ -441,7 +512,10 @@ export default function HomePage() {
               pageSize={5}
               getRowId={(row) => row.employeeId}
               rowsPerPageOptions={[5]}
-              disableSelectionOnClick={true}
+              onSelectionModelChange={(newSelectionModel) => {
+                setSelectionModel(newSelectionModel);
+              }}
+              selectionModel={selectionModel}
             />
           </Box>
         </div >

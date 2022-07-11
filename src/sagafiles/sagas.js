@@ -1,6 +1,6 @@
 import { call, put, takeEvery } from '@redux-saga/core/effects';
 import Axios from 'axios';
-import { addEmployeeThunk, deleteEmployeeThunk, doLoginThunk, doLogout, doUserRegistrationThunk, fetchEmployeesThunk, updateEmployeeSearch, updateEmployeeThunk } from './EmployeeListSlice';
+import { addEmployeeThunk, deleteEmployeeThunk, doLoginThunk, doLogout, doUserRegistrationThunk, fetchEmployeesThunk, updateEmployeeThunk } from '../redux/EmployeeListSlice';
 import { sagaActions } from './sagaActions';
 
 let callAPI = async ({ url, method, data }) => {

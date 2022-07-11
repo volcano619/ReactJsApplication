@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, AppBar, Toolbar, Tooltip, Avatar, IconButton, Menu, MenuItem, Typography } from "@mui/material";
-import "./App.css";
+import "../App.css";
 
 export default function CustomAppBar(props) {
     const pages = ['Add Employee'];
     const settings = ['Logout'];
     const navigate = useNavigate();
     const [IsHomePage, setIsHomePageStatus] = useState(props.isHomePage);
-    const [profileUsername, setProfileUsername] = useState(props.profileUsername);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
 
     const handleOpenUserMenu = (event) => {
@@ -49,7 +48,7 @@ export default function CustomAppBar(props) {
                         <Box>
                             <Tooltip title="Open settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                    <Avatar sx={{ bgcolor: 'green' }} alt={profileUsername} src="/src/user.png" />
+                                    <Avatar sx={{ bgcolor: 'green' }} src="/src/user.png" />
                                 </IconButton>
                             </Tooltip>
                             <Menu

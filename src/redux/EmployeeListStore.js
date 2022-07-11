@@ -1,8 +1,8 @@
 // store.js
 import { configureStore } from '@reduxjs/toolkit'
 import createSagaMiddleware from '@redux-saga/core';
-import employeelistReducer from './EmployeeListSlice';
-import saga from './sagas';
+import employeelistReducer from '../redux/EmployeeListSlice';
+import saga from '../sagafiles/sagas';
 
 let sagaMiddleware = createSagaMiddleware()
 const middleware = [sagaMiddleware]

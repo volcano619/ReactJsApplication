@@ -36,8 +36,7 @@ export const EmployeeListSlice = createSlice({
             state.valueBackup = [];
             state.profileUserName = "Admin";
             state.userLoggedIn = false;
-            sessionStorage.setItem('LoginStatus', state.userLoggedIn);
-            sessionStorage.setItem('ProfileUserName', state.profileUserName);
+            sessionStorage.clear();
         },
 
         doLoginThunk: (state, action) => {

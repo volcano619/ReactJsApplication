@@ -28,22 +28,24 @@ export default function Login() {
     })
 
     const validateLogin = async (loginData) => {
-        const validationOutput = await loginSchema.validate(loginData).catch((error) => {
-            if (error.errors[0].toLowerCase().includes('password')) {
-                setPasswordHelperText('Please check your password');
-                setPasswordErrorStatus(true);
-            }
-            else if (error.errors[0].toLowerCase().includes('username')) {
-                setUsernameHelperText('Please check your username');
-                setUsernameErrorStatus(true);
-            }
+        const validationOutput = await loginSchema.validate(loginData, { abortEarly: false }).catch((error) => {
+            error.errors.map((errorMessage) => {
+                if (errorMessage.toLowerCase().includes('password')) {
+                    setPasswordHelperText('Please check your password');
+                    setPasswordErrorStatus(true);
+                }
+                else if (errorMessage.toLowerCase().includes('username')) {
+                    setUsernameHelperText('Please check your username');
+                    setUsernameErrorStatus(true);
+                }
+            });
         });
         if (validationOutput !== undefined) {
             setPasswordHelperText('');
             setPasswordErrorStatus(false);
             setUsernameHelperText('');
             setUsernameErrorStatus(false);
-            dispatch({ type: sagaActions.DO_LOGIN_SAGA, requestData: JSON.stringify({LoginUsername:loginData.Username, LoginPassword:loginData.Password}) });
+            dispatch({ type: sagaActions.DO_LOGIN_SAGA, requestData: JSON.stringify({ LoginUsername: loginData.Username, LoginPassword: loginData.Password }) });
             navigate('homepage');
         }
     };

@@ -10,7 +10,7 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { TextField, Button, Paper, Tooltip, Menu, Avatar, MenuItem, Grid, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar } from '@mui/material';
+import { TextField, Button, Paper, Tooltip, Menu, Avatar, MenuItem, Grid, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar, Slide } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
@@ -95,14 +95,19 @@ export default function HomePage() {
   const [emailAddressHelperText, setemailAddressHelperText] = useState();
   const [emailAddressErrorStatus, setemailAddressErrorStatus] = useState();
   const [selectionModel, setSelectionModel] = useState([]);
+  const [transition, setTransition] = useState(undefined);
   const snackBarStatus = useSelector(getSnackBarStatus);
   // const [firstNameLabelText, setfirstNameLabelText] = useState();
   // const [lastNameLabelText, setlastNameLabelText] = useState();
   // const [companyNameLabelText, setcompanyNameLabelText] = useState();
   // const [emailAddressLabelText, setemailAddressLabelText] = useState();
 
-  
+  function TransitionLeft(props) {
+    return <Slide {...props} direction="left" />;
+  }
+
   const openSnackBar = () => {
+    setTransition(() => TransitionLeft);
     dispatch({ type: sagaActions.UPDATE_SNACKBAR_SAGA, requestData: true });
   };
 
@@ -555,6 +560,8 @@ export default function HomePage() {
             open={snackBarStatus}
             autoHideDuration={3000}
             onClose={snackbarClose}
+            TransitionComponent={transition}
+            key={transition ? transition.name : ''}
             message="Employee List updated"
             action={action}
           />

@@ -1,6 +1,6 @@
 import { call, put, takeEvery } from '@redux-saga/core/effects';
 import Axios from 'axios';
-import { addEmployeeThunk, deleteEmployeeThunk, doLoginThunk, doLogout, doUserRegistrationThunk, fetchEmployeesThunk, updateEmployeeThunk } from '../redux/EmployeeListSlice';
+import { addEmployeeThunk, deleteEmployeeThunk, doLoginThunk, doLogout, doUserRegistrationThunk, fetchEmployeesThunk, updateEmployeeThunk, updateSnackBarStatus } from '../redux/EmployeeListSlice';
 import { sagaActions } from './sagaActions';
 
 let callAPI = async ({ url, method, data }) => {
@@ -94,6 +94,10 @@ export function* doLogoutSaga() {
     yield put(doLogout());
 }
 
+export function* updateSnackBarStatusSaga(status) {
+    yield put(updateSnackBarStatus(status.requestData));
+}
+
 export default function* rootSaga() {
     yield takeEvery(sagaActions.FETCH_EMPLOYEE_SAGA, fetchEmployeesSaga)
     yield takeEvery(sagaActions.ADD_EMPLOYEE_SAGA, addEmployeeSaga)
@@ -102,5 +106,5 @@ export default function* rootSaga() {
     yield takeEvery(sagaActions.DO_LOGIN_SAGA, doLoginSaga)
     yield takeEvery(sagaActions.DO_LOGOUT_SAGA, doLogoutSaga)
     yield takeEvery(sagaActions.DO_REGISTRATION_SAGA, doUserRegistrationSaga)
-    // yield takeEvery(sagaActions.SEARCH_EMPLOYEE_SAGA, employeeSearchSaga)
+    yield takeEvery(sagaActions.UPDATE_SNACKBAR_SAGA, updateSnackBarStatusSaga)
 }

@@ -12,7 +12,7 @@ import CustomAppBar from './CustomAppBar';
 YupPassword(yup)
 
 export default function Login() {
-    const { register, handleSubmit } = useForm();
+    const { register, handleSubmit, setValue } = useForm();
     let navigate = useNavigate();
     let dispatch = useDispatch();
     const [usernameHelperText, setUsernameHelperText] = useState();
@@ -25,6 +25,11 @@ export default function Login() {
     const loginSchema = yup.object().shape({
         Username: yup.string().email().required(),
         Password: yup.string().password().required(),
+    })
+
+    const registrationSchema = yup.object().shape({
+        RegLoginUsername: yup.string().email().required(),
+        RegLoginPassword: yup.string().password().required(),
     })
 
     const validateLogin = async (loginData) => {
@@ -51,19 +56,12 @@ export default function Login() {
     };
 
     const validateUserRegistration = async (registrationData) => {
-        const isRegistrationDataValid = await loginSchema.isValid(registrationData, { abortEarly: false });
-        if (isRegistrationDataValid) {
-            dispatch({ type: sagaActions.DO_REGISTRATION_SAGA, requestData: JSON.stringify(registrationData) });
-            if (userRegisteredSuccessfully) {
-                alert('User has been succesfully registered');
-            }
-            else {
-                alert("Registration Failed");
-            }
-        }
-
-        else {
-            alert("Registration Failed");
+        console.log(registrationData);
+        const validationOutput = await registrationSchema.validate(registrationData, { abortEarly: false });
+        if (validationOutput !== undefined) {
+            dispatch({ type: sagaActions.DO_REGISTRATION_SAGA, requestData: JSON.stringify({ LoginUsername: registrationData.RegLoginUsername, LoginPassword: registrationData.RegLoginPassword }) });
+            setValue("RegLoginUsername", "");
+            setValue("RegLoginPassword", "");
         }
     };
 

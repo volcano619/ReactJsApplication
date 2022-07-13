@@ -7,6 +7,7 @@ const initialState = {
     isRegistrationSuccessful: false,
     profileUserName: 'Admin',
     status: 'idle',
+    snackBarStatus: false,
 };
 
 export const arrayUpdate = (arr, updatedItem) => {
@@ -97,6 +98,10 @@ export const EmployeeListSlice = createSlice({
                 state.value = state.valueBackup;
             }
         },
+
+        updateSnackBarStatus: (state, action) => {
+            state.snackBarStatus = action.payload;
+        },
     },
 });
 
@@ -105,6 +110,7 @@ export const getEmployeeSearchData = (state) => state.employeelist.searchedItem;
 export const getUserProfileUsername = (state) => state.employeelist.profileUserName;
 export const getUserLoggedInStatus = (state) => state.employeelist.userLoggedIn;
 export const getUserRegistrationnStatus = (state) => state.employeelist.isRegistrationSuccessful;
+export const getSnackBarStatus = (state) => state.employeelist.snackBarStatus;
 
-export const { doLoginThunk, doUserRegistrationThunk, fetchEmployeesThunk, addEmployeeThunk, updateEmployeeThunk, deleteEmployeeThunk, doLogout } = EmployeeListSlice.actions;
+export const { doLoginThunk, doUserRegistrationThunk, fetchEmployeesThunk, addEmployeeThunk, updateEmployeeThunk, deleteEmployeeThunk, doLogout, updateSnackBarStatus } = EmployeeListSlice.actions;
 export default EmployeeListSlice.reducer;

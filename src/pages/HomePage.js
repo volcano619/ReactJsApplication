@@ -10,15 +10,17 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { TextField, Button, Paper, Tooltip, Menu, Avatar, MenuItem, Grid, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { TextField, Button, Paper, Tooltip, Menu, Avatar, MenuItem, Grid, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import * as yup from "yup";
 import { sagaActions } from "../sagafiles/sagaActions";
+import { getSnackBarStatus } from "../redux/EmployeeListSlice";
 
 const drawerWidth = 480;
 
@@ -92,11 +94,24 @@ export default function HomePage() {
   const [companyNameErrorStatus, setcompanyNameErrorStatus] = useState();
   const [emailAddressHelperText, setemailAddressHelperText] = useState();
   const [emailAddressErrorStatus, setemailAddressErrorStatus] = useState();
-  const [selectionModel, setSelectionModel] = React.useState([]);
+  const [selectionModel, setSelectionModel] = useState([]);
+  const snackBarStatus = useSelector(getSnackBarStatus);
   // const [firstNameLabelText, setfirstNameLabelText] = useState();
   // const [lastNameLabelText, setlastNameLabelText] = useState();
   // const [companyNameLabelText, setcompanyNameLabelText] = useState();
   // const [emailAddressLabelText, setemailAddressLabelText] = useState();
+
+  
+  const openSnackBar = () => {
+    dispatch({ type: sagaActions.UPDATE_SNACKBAR_SAGA, requestData: true });
+  };
+
+  const snackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    dispatch({ type: sagaActions.UPDATE_SNACKBAR_SAGA, requestData: false });
+  };
 
   const handleDialogClickOpen = (employeeId) => {
     setSelectionModel(employeeId);
@@ -122,6 +137,7 @@ export default function HomePage() {
   const deleteClickedEmployee = async (employeeId) => {
     dispatch({ type: sagaActions.DELETE_EMPLOYEE_SAGA, requestData: employeeId });
     handleDialogClose();
+    openSnackBar();
   }
 
   const renderDetailsButton = (params) => {
@@ -163,6 +179,22 @@ export default function HomePage() {
       </strong>
     )
   }
+
+  const action = (
+    <React.Fragment>
+      <Button color="secondary" size="small" onClick={snackbarClose}>
+        OK
+      </Button>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={snackbarClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
 
   const columns = [
     { field: 'employeeId', headerName: 'Employee ID', width: 150 },
@@ -245,6 +277,7 @@ export default function HomePage() {
 
   const handleDrawerClose = () => {
     setOpen(false);
+    setSelectionModel([]);
   };
 
   useEffect(() => {
@@ -290,6 +323,7 @@ export default function HomePage() {
       setValue("EmailAddress", "");
       setValue("CompanyName", "");
       handleDrawerClose();
+      openSnackBar();
     }
   }
 
@@ -328,8 +362,8 @@ export default function HomePage() {
       setValue("LastName", "");
       setValue("EmailAddress", "");
       setValue("CompanyName", "");
-      setSelectionModel([]);
       handleDrawerClose();
+      openSnackBar();
     }
   }
 
@@ -347,7 +381,6 @@ export default function HomePage() {
     setValue("LastName", "");
     setValue("EmailAddress", "");
     setValue("CompanyName", "");
-    setSelectionModel([]);
     handleDrawerClose();
   }
 
@@ -518,6 +551,13 @@ export default function HomePage() {
               selectionModel={selectionModel}
             />
           </Box>
+          <Snackbar
+            open={snackBarStatus}
+            autoHideDuration={3000}
+            onClose={snackbarClose}
+            message="Employee List updated"
+            action={action}
+          />
         </div >
       </Main>
     </Box>
